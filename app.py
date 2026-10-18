@@ -9,45 +9,45 @@ def verificar_acceso():
     if st.session_state.get("autenticado", False):
         return True
     
-# --- PANTALLA DE BIENVENIDA ---
-st.title("🏢 Bienvenido al Sistema de Gestión Inteligente de Importación 🛳️✨")
-st.markdown("### ¿Sabe cuánto le cuesta realmente traer sus productos? Este Sistema Inteligente le revela:")
-st.markdown("""
-* La verdad sobre sus márgenes, fletes y precios de venta.
-* Descubra qué productos le dejan ganancia real y cuáles no.
-* Optimice el espacio de su contenedor y evite pérdidas por costos ocultos.
-    """)
+    # --- PANTALLA DE BIENVENIDA ---
+    st.title("🏢 Bienvenido al Sistema de Gestión Inteligente de Importación 🛳️✨")
+    st.markdown("### ¿Sabe cuánto le cuesta realmente traer sus productos? Este Sistema Inteligente le revela:")
+    st.markdown("""
+    * La verdad sobre sus márgenes, fletes y precios de venta.
+    * Descubra qué productos le dejan ganancia real y cuáles no.
+    * Optimice el espacio de su contenedor y evite pérdidas por costos ocultos.
+        """)
+        
+    # Texto destacado
+    st.info("**\"Una herramienta diseñada para proteger su capital y asegurar que su negocio siempre crezca\"**")
     
-# Texto destacado
-st.info("**\"Una herramienta diseñada para proteger su capital y asegurar que su negocio siempre crezca\"**")
-
-st.markdown("**Instrucciones:**")
-st.markdown("1. Una vez dentro, vaya al menú de la izquierda (⏪) para configurar los datos de su empresa: Razón Social (Nombre), RIF y Propietario. Así como los márgenes (%) de utilidad y descuentos previstos.")
-st.markdown("2. Para ingresar al Sistema, escriba a continuación la contraseña suministrada por su Asesor de Importación para comenzar el análisis. 🔑")
-
-# --- FIRMA Y FOTO ---
-col_vacia, col_foto = st.columns([2, 1])
-
-with col_vacia:
-    st.markdown("<h4 style='text-align: center; margin-top: 20px;'>Diseñado por su Asesor de Importación<br>Prof. Jesús Pulido V.</h4>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Teléfonos de contacto:<br>0424-728.3199 / 0416-291.6426</p>", unsafe_allow_html=True)
+    st.markdown("**Instrucciones:**")
+    st.markdown("1. Una vez dentro, vaya al menú de la izquierda (⏪) para configurar los datos de su empresa: Razón Social (Nombre), RIF y Propietario. Así como los márgenes (%) de utilidad y descuentos previstos.")
+    st.markdown("2. Para ingresar al Sistema, escriba a continuación la contraseña suministrada por su Asesor de Importación para comenzar el análisis. 🔑")
     
-with col_foto:
-    try:
-        st.image("profesor.jpg", use_container_width=True)
-    except:
-        st.write("📷")
-
-st.divider()
-
-# --- CAJA DE CONTRASEÑA ---
-password = st.text_input("Contraseña de acceso", type="password")
-
-if st.button("Ingresar", type="primary"):
-    if password == st.secrets["PASSWORD_ADMIN"]:
-        st.session_state["autenticado"] = True
-        st.rerun()
-    else:
+    # --- FIRMA Y FOTO ---
+    col_vacia, col_foto = st.columns([2, 1])
+    
+    with col_vacia:
+        st.markdown("<h4 style='text-align: center; margin-top: 20px;'>Diseñado por su Asesor de Importación<br>Prof. Jesús Pulido V.</h4>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center;'>Teléfonos de contacto:<br>0424-728.3199 / 0416-291.6426</p>", unsafe_allow_html=True)
+        
+    with col_foto:
+        try:
+            st.image("profesor.jpg", use_container_width=True)
+        except:
+            st.write("📷")
+    
+    st.divider()
+    
+    # --- CAJA DE CONTRASEÑA ---
+    password = st.text_input("Contraseña de acceso", type="password")
+    
+    if st.button("Ingresar", type="primary"):
+        if password == st.secrets["PASSWORD_ADMIN"]:
+            st.session_state["autenticado"] = True
+            st.rerun()
+        else:
         st.error("❌ Contraseña incorrecta. Intente de nuevo.")
         
     return False
