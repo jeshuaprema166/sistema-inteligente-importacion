@@ -2,6 +2,23 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import pandas as pd
 import streamlit as st
 
+# --- CONFIGURACIÓN DE SEGURIDAD ---
+def verificar_acceso():
+    if "PASSWORD_ADMIN" not in st.secrets:
+        return True
+    if st.session_state.get("autenticado", False):
+        return True
+    st.title("🔐 Acceso Restringido")
+    st.markdown("Por favor, ingrese la contraseña de administrador.")
+    password = st.text_input("Contraseña", type="password")
+    if st.button("Ingresar", type="primary"):
+        if password == st.secrets["PASSWORD_ADMIN"]:
+            st.session_state["autenticado"] = True
+            st.rerun()
+        else:
+            st.error("❌ Contraseña incorrecta. Intente de nuevo.")
+    return False
+
 CENTAVO = Decimal("0.01")
 CERO = Decimal("0")
 UNO = Decimal("1")
@@ -337,4 +354,9 @@ def main():
                     mostrar_resultado(productos, gastos_contenedor, config)
 
 if __name__ == "__main__":
-    main()
+    # Verificamos la contraseña antes de mostrar la app
+    if verificar_acceso():
+        if st.sidebar.button("🚪 Cerrar Sesión"):
+            st.session_state["autenticado"] = False
+            st.rerun()
+        main()
