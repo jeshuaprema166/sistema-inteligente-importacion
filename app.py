@@ -50,8 +50,7 @@ if st.button("Ingresar", type="primary"):
     else:
         st.error("❌ Contraseña incorrecta. Intente de nuevo.")
         
-return False
-
+    return False
 
 CENTAVO = Decimal("0.01")
 CERO = Decimal("0")
