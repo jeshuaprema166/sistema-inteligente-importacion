@@ -19,7 +19,7 @@ def verificar_acceso():
         """)
         
     # Texto destacado
-    st.info("**\"Una herramienta diseñada para proteger su capital y asegurar que su negocio siempre crezca\"**")
+    st.info("**\"UNA HERRAMIENTA DISEÑADA PARA PROTEGER SU CAPITAL Y ASEGURAR QUE SU NEGOCIO SIEMPRE CREZCA\"**")
     
     st.markdown("**Instrucciones:**")
     st.markdown("1. Una vez dentro, vaya al menú de la izquierda (⏪) para configurar los datos de su empresa: Razón Social (Nombre), RIF y Propietario. Así como los márgenes (%) de utilidad y descuentos previstos.")
@@ -34,7 +34,7 @@ def verificar_acceso():
         
     with col_foto:
         try:
-            st.image("profesor.jpg", use_container_width=True)
+            st.image("profesor.jpg", width=300)
         except:
             st.write("📷")
     
