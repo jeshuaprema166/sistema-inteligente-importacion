@@ -48,7 +48,7 @@ def verificar_acceso():
             st.session_state["autenticado"] = True
             st.rerun()
         else:
-        st.error("❌ Contraseña incorrecta. Intente de nuevo.")
+            st.error("❌ Contraseña incorrecta. Intente de nuevo.")
         
     return False
 
