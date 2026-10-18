@@ -10,8 +10,8 @@ def verificar_acceso():
         return True
     
     # --- PANTALLA DE BIENVENIDA ---
-    st.title("🏢 Bienvenido al Sistema de Gestión Inteligente de Importación 🛳️✨")
-    st.markdown("### ¿Sabe cuánto le cuesta realmente traer sus productos? Este Sistema Inteligente le revela:")
+    st.markdown("<h1 style='text-align: center;'>🏢 Bienvenido al Sistema de Gestión Inteligente de Importación 🛳️✨</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center;'>¿Sabe cuánto le cuesta realmente traer sus productos? Este Sistema Inteligente le revela:</h3>", unsafe_allow_html=True)
     st.markdown("""
     * La verdad sobre sus márgenes, fletes y precios de venta.
     * Descubra qué productos le dejan ganancia real y cuáles no.
@@ -34,7 +34,7 @@ def verificar_acceso():
         
     with col_foto:
         try:
-            st.image("profesor.jpg", width=300)
+            st.image("profesor.jpg", width=180)
         except:
             st.write("📷")
     
