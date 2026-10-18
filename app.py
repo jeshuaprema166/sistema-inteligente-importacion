@@ -8,15 +8,37 @@ def verificar_acceso():
         return True
     if st.session_state.get("autenticado", False):
         return True
-    st.title("🔐 Acceso Restringido")
-    st.markdown("Por favor, ingrese la contraseña de administrador.")
-    password = st.text_input("Contraseña", type="password")
+    
+    # --- PANTALLA DE BIENVENIDA ---
+    st.title("🏢 Bienvenido al Sistema de Gestión Inteligente de Importación 🛳️✨")
+    
+    st.markdown("""
+    ### ¿Sabe cuánto le cuesta realmente traer sus productos? Este Sistema Inteligente le revela:
+    * La verdad sobre sus márgenes, fletes y precios de venta.
+    * Descubra qué productos le dejan ganancia real y cuáles no.
+    * Optimice el espacio de su contenedor y evite pérdidas por costos ocultos.
+
+    <div style="background-color:#f0f2f6; padding:15px; border-radius:10px; border-left: 5px solid #ff4b4b; margin-top: 20px; margin-bottom: 20px;">
+    <strong>"Una herramienta diseñada para proteger su capital y asegurar que su negocio siempre crezca"</strong>
+    </div>
+
+    **Instrucciones:**
+    1. Una vez dentro, vaya al menú de la izquierda (⏪) para configurar los datos de su empresa: Razón Social (Nombre), RIF y Propietario. Así como los márgenes (%) de utilidad y descuentos previstos.
+    2. Para ingresar al Sistema, escriba a continuación la contraseña suministrada por su Asesor de Importación para comenzar el análisis. 🔑
+    """)
+    
+    st.divider() # Línea divisoria
+    
+    # --- CAJA DE CONTRASEÑA ---
+    password = st.text_input("Contraseña de acceso", type="password")
+    
     if st.button("Ingresar", type="primary"):
         if password == st.secrets["PASSWORD_ADMIN"]:
             st.session_state["autenticado"] = True
             st.rerun()
         else:
             st.error("❌ Contraseña incorrecta. Intente de nuevo.")
+            
     return False
 
 CENTAVO = Decimal("0.01")
