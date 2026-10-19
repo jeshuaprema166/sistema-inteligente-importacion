@@ -328,13 +328,29 @@ def construir_productos_desde_df(df, mapeo):
             precio = leer_decimal(fila[mapeo["precio"]], f"precio fila {i+2}", es_dinero=True)
             peso = leer_decimal(fila[mapeo["peso"]], f"peso fila {i+2}", permitir_cero=False)
             volumen = leer_decimal(fila[mapeo["volumen"]], f"volumen fila {i+2}", permitir_cero=False)
+            
+            # --- NUEVOS DATOS DEL SEMÁFORO ---
+            stock = int(fila[mapeo["stock"]])
+            ventas = int(fila[mapeo["ventas"]])
+            dias = int(fila[mapeo["dias"]])
+            
         except (ValueError, TypeError) as e:
             raise ValueError(f"Fila {i+2}: {e}")
+            
         if not nombre or cantidad <= 0:
             raise ValueError(f"Fila {i+2}: nombre vacío o cantidad inválida.")
+            
         productos.append({
-            "nombre": nombre, "cantidad": cantidad, "precio_china": precio,
-            "peso_total": peso * cantidad, "volumen_total": volumen * cantidad, "gastos": {},
+            "nombre": nombre, 
+            "cantidad": cantidad, 
+            "precio_china": precio,
+            "peso_total": peso * cantidad, 
+            "volumen_total": volumen * cantidad, 
+            "gastos": {},
+            # --- GUARDAMOS EL SEMÁFORO ---
+            "stock_actual": stock,
+            "ventas_semanales": ventas,
+            "dias_entrega": dias
         })
     return productos
 
