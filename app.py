@@ -14,7 +14,7 @@ def verificar_acceso():
     st.markdown("<h3 style='text-align: center;'>¿Sabe cuánto le cuesta realmente traer los productos desde el exterior<br> hasta su depósito?<br>Este Sistema Inteligente le revela:</h3>", unsafe_allow_html=True)
     st.markdown("""
     * La verdad sobre sus costos de importación, márgenes de utilidad y precios óptimos de venta.
-    * Descubra qué productos le dejan ganancia real y cuáles no, analizando las variables de peso y volumen.
+    * Descubra qué productos le dejan ganancia real y cuáles no, analizando la rentabilidad neta por producto prorrateando con precisión los costos según peso (kg) y volumen (m^3), identificando márgenes reales de ganancia antes de nacionalizar.
     * Optimice el espacio de su contenedor y evite pérdidas por costos ocultos.
     * Alarmas de reposición de inventario 🟢🟡🔴 por IA.
     * Ingreso de forma automática de todos los datos y detalles de sus artículos del inventario en Excel al Sistema de Análisis Inteligente.
