@@ -10,7 +10,7 @@ def verificar_acceso():
         return True
     
     # --- PANTALLA DE BIENVENIDA ---
-    st.markdown("<h1 style='text-align: center;'>🏢<br>Bienvenido al Sistema de Gestión Inteligente de Importación<br>🛳️✨</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>🏢<br>Bienvenido al Sistema de Gestión Inteligente de Importación<br>🛳️</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align: center;'>¿Sabe cuánto le cuesta realmente traer sus productos? Este Sistema Inteligente le revela:</h3>", unsafe_allow_html=True)
     st.markdown("""
     * La verdad sobre sus márgenes, fletes y precios de venta.
@@ -39,7 +39,7 @@ def verificar_acceso():
         
         # Aquí va la foto, dentro de la columna central
         try:
-            st.image("profesor.jpg", width=250) # Ajuste el ancho a su gusto
+            st.image("profesor.jpg", width=180) # Ajuste el ancho a su gusto
         except:
             st.write("📷")
     
