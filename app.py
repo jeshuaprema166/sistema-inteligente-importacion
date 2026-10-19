@@ -21,7 +21,7 @@ def verificar_acceso():
     # Texto destacado
     st.markdown("""
     <div style="background-color: #e8f4f8; padding: 15px; border-radius: 5px; text-align: center; border-left: 5px solid #2196F3; margin-top: 20px; margin-bottom: 20px;">
-    <strong>"UNA HERRAMIENTA DISEÑADA PARA PROTEGER SU CAPITAL Y ASEGURAR QUE SU NEGOCIO SIEMPRE CREZCA"</strong>
+    <strong>"UN SISTEMA DE COMERCIALIZACIÓN DISEÑADO PARA PROTEGER SU CAPITAL Y ASEGURAR QUE SU NEGOCIO SIEMPRE CREZCA"</strong>
     </div>
     """, unsafe_allow_html=True)
     
