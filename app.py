@@ -11,7 +11,7 @@ def verificar_acceso():
     
     # --- PANTALLA DE BIENVENIDA ---
     st.markdown("<h1 style='text-align: center;'>🏢<br>Bienvenido al Sistema de Gestión Inteligente de Importación<br>🛳️</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align: center;'>¿Sabe cuánto le cuesta realmente traer sus productos? Este Sistema Inteligente le revela:</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center;'>¿Sabe cuánto le cuesta realmente traer sus productos del exterior hasta su depósito? Este Sistema Inteligente le revela:</h3>", unsafe_allow_html=True)
     st.markdown("""
     * La verdad sobre sus márgenes, fletes y precios de venta.
     * Descubra qué productos le dejan ganancia real y cuáles no.
