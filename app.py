@@ -10,7 +10,7 @@ def verificar_acceso():
         return True
     
     # --- PANTALLA DE BIENVENIDA ---
-    st.markdown("<h1 style='text-align: center;'>🏢 Bienvenido al Sistema de Gestión Inteligente de Importación 🛳️✨</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>🏢<br>Bienvenido al Sistema de Gestión Inteligente de Importación<br>🛳️✨</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align: center;'>¿Sabe cuánto le cuesta realmente traer sus productos? Este Sistema Inteligente le revela:</h3>", unsafe_allow_html=True)
     st.markdown("""
     * La verdad sobre sus márgenes, fletes y precios de venta.
@@ -19,24 +19,29 @@ def verificar_acceso():
         """)
         
     # Texto destacado
-    st.info("**\"UNA HERRAMIENTA DISEÑADA PARA PROTEGER SU CAPITAL Y ASEGURAR QUE SU NEGOCIO SIEMPRE CREZCA\"**")
+    st.markdown("""
+<div style="background-color: #e8f4f8; padding: 15px; border-radius: 5px; text-align: center; border-left: 5px solid #2196F3; margin-top: 20px; margin-bottom: 20px;">
+    <strong>"UNA HERRAMIENTA DISEÑADA PARA PROTEGER SU CAPITAL Y ASEGURAR QUE SU NEGOCIO SIEMPRE CREZCA"</strong>
+</div>
+""", unsafe_allow_html=True)
     
     st.markdown("**Instrucciones:**")
     st.markdown("1. Una vez dentro, vaya al menú de la izquierda (⏪) para configurar los datos de su empresa: Razón Social (Nombre), RIF y Propietario. Así como los márgenes (%) de utilidad y descuentos previstos.")
     st.markdown("2. Para ingresar al Sistema, escriba a continuación la contraseña suministrada por su Asesor de Importación para comenzar el análisis. 🔑")
     
     # --- FIRMA Y FOTO ---
-    col_vacia, col_foto = st.columns([2, 1])
+# Damos 1 espacio vacío, 1 para el texto y 1 para la foto
+col_izq, col_centro, col_der = st.columns([1, 1, 1]) 
+
+with col_centro:
+    st.markdown("<h4 style='text-align: center; margin-top: 20px;'>Diseñado por su Asesor de Importación<br>Prof. Jesús Pulido V.</h4>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Teléfonos de contacto:<br>0424-728.3299 / 0416-291.6426</p>", unsafe_allow_html=True)
     
-    with col_vacia:
-        st.markdown("<h4 style='text-align: center; margin-top: 20px;'>Diseñado por su Asesor de Importación<br>Prof. Jesús Pulido V.</h4>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center;'>Teléfonos de contacto:<br>0424-728.3199 / 0416-291.6426</p>", unsafe_allow_html=True)
-        
-    with col_foto:
-        try:
-            st.image("profesor.jpg", width=180)
-        except:
-            st.write("📷")
+    # Aquí va la foto, dentro de la columna central
+    try:
+        st.image("profesor.jpg", width=250) # Ajuste el ancho a su gusto
+    except:
+        st.write("📷")
     
     st.divider()
     
