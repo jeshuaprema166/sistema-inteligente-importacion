@@ -123,6 +123,7 @@ def prorratear_gasto(monto, productos, campo_base):
     for indice in orden_por_resto[:centavos_sobrantes]:
         partes_en_centavos[indice] += 1
     return [Decimal(parte) / 100 for parte in partes_en_centavos]
+
 def evaluar_semaforo(stock_actual, ventas_semanales, dias_entrega):
     # Evitar división por cero si aún no hay ventas registradas
     if ventas_semanales <= 0:
