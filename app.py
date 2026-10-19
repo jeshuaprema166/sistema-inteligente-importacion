@@ -285,24 +285,35 @@ def sugerir_columna(columnas, posibles):
 def mapear_columnas(df):
     columnas = ["(ninguna)"] + list(df.columns)
     st.markdown("**Mapeo de columnas**")
-    c1, c2, c3, c4, c5 = st.columns(5)
+    c1, c2, c3 = st.columns(3)
+    c4, c5, c6 = st.columns(3)
+    c7, c8, c9 = st.columns(3)
+    
     sugerencias = {
-        "producto": ["producto", "descripcion", "descripción", "nombre", "articulo", "artículo"],
+        "producto": ["producto", "descripcion", "descripción", "nombre", "articulo"],
         "cantidad": ["cantidad", "cant", "unidades", "qty"],
         "precio": ["precio", "china", "unitario", "costo", "fob"],
         "peso": ["peso", "kg", "weight"],
         "volumen": ["volumen", "m3", "cbm", "volume"],
+        "stock": ["stock", "inventario", "existencia"],
+        "ventas": ["venta", "ventas", "semanal", "salida"],
+        "dias": ["dias", "días", "entrega", "llegada", "transito"]
     }
+    
     def selector(col, etiqueta, keys):
         sug = sugerir_columna(df.columns, keys)
         idx = columnas.index(sug) if sug in columnas else 0
         return col.selectbox(etiqueta, columnas, index=idx)
+        
     return {
         "producto": selector(c1, "Producto / Descripción", sugerencias["producto"]),
         "cantidad": selector(c2, "Cantidad", sugerencias["cantidad"]),
         "precio": selector(c3, "Precio en China", sugerencias["precio"]),
         "peso": selector(c4, "Peso unitario (kg)", sugerencias["peso"]),
         "volumen": selector(c5, "Volumen unitario (m³)", sugerencias["volumen"]),
+        "stock": selector(c6, "Stock Actual", sugerencias["stock"]),
+        "ventas": selector(c7, "Ventas Semanales", sugerencias["ventas"]),
+        "dias": selector(c8, "Días de Entrega", sugerencias["dias"]),
     }
 
 def construir_productos_desde_df(df, mapeo):
