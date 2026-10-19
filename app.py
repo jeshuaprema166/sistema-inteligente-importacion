@@ -13,8 +13,9 @@ def verificar_acceso():
     st.markdown("<h1 style='text-align: center;'>🏢<br>Bienvenido al Sistema de Gestión Inteligente de Importación<br>🛳️</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align: center;'>¿Sabe cuánto le cuesta realmente traer los productos desde el exterior<br> hasta su depósito?<br>Este Sistema Inteligente le revela:</h3>", unsafe_allow_html=True)
     st.markdown("""
-    * La verdad sobre sus márgenes, fletes y precios de venta.
+    * La verdad sobre sus costos de importación, márgenes de utilidad y precios óptimos de venta.
     * Descubra qué productos le dejan ganancia real y cuáles no.
+    * Alarmas de reposición de inventario 🟢🟡🔴 por IA.
     * Optimice el espacio de su contenedor y evite pérdidas por costos ocultos.
         """)
         
