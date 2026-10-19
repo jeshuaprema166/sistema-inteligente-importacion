@@ -123,7 +123,32 @@ def prorratear_gasto(monto, productos, campo_base):
     for indice in orden_por_resto[:centavos_sobrantes]:
         partes_en_centavos[indice] += 1
     return [Decimal(parte) / 100 for parte in partes_en_centavos]
-
+def evaluar_semaforo(stock_actual, ventas_semanales, dias_entrega):
+    # Evitar división por cero si aún no hay ventas registradas
+    if ventas_semanales <= 0:
+        return "⚪", "Sin ventas registradas", 0
+    
+    # Cálculos matemáticos
+    semanas_stock = stock_actual / ventas_semanales
+    semanas_entrega = dias_entrega / 7
+    margen = semanas_stock - semanas_entrega
+    
+    # Lógica de los 3 colores
+    if margen <= 0:
+        color = "🔴"
+        mensaje = "¡ALERTA ROJA! Pedir YA"
+        sugerido = (semanas_entrega * ventas_semanales) + (4 * ventas_semanales) - stock_actual
+    elif margen <= 2:
+        color = "🟡"
+        mensaje = "Precaución: Pedir pronto"
+        sugerido = (semanas_entrega * ventas_semanales) + (4 * ventas_semanales) - stock_actual
+    else:
+        color = "🟢"
+        mensaje = "Todo bien: Stock suficiente"
+        sugerido = 0
+        
+    return color, mensaje, int(sugerido)
+    
 def calcular_costos(productos, gastos_ingresados, config):
     margen = Decimal(str(config["margen"])) / Decimal("100")
     desc_mayorista = Decimal(str(config["desc_mayorista"])) / Decimal("100")
