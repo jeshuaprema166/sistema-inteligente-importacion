@@ -15,9 +15,9 @@ def verificar_acceso():
     st.markdown("""
     * La verdad sobre sus costos de importación, márgenes de utilidad y precios óptimos de venta.
     * Descubra qué productos le dejan ganancia real y cuáles no, analizando las variables de peso y volumen.
+    * Optimice el espacio de su contenedor y evite pérdidas por costos ocultos.
     * Alarmas de reposición de inventario 🟢🟡🔴 por IA.
     * Ingreso de forma automática de todos los datos y detalles de sus artículos del inventario en Excel al Sistema de Análisis Inteligente.
-    * Optimice el espacio de su contenedor y evite pérdidas por costos ocultos.
     * Defina fácilmente y con certeza a qué proveedor del exterior debe comprar, o si es mejor hacerlo localmente, ✨con ayuda de la IA 🤖✨
         """)
         
