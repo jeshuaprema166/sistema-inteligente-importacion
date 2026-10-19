@@ -55,7 +55,8 @@ with col_centro:
         else:
             st.error("❌ Contraseña incorrecta. Intente de nuevo.")
         
-    return False
+    return False # actualizado 
+
 
 CENTAVO = Decimal("0.01")
 CERO = Decimal("0")
