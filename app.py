@@ -376,15 +376,22 @@ def main():
                 precio = c3.text_input("Precio China ($)", key=f"p_{i}", placeholder="Ej.: 35.00")
                 peso = c4.text_input("Peso unitario (kg)", key=f"pe_{i}", placeholder="Ej.: 3")
                 vol = c5.text_input("Volumen unitario (m³)", key=f"v_{i}", placeholder="Ej.: 0.008")
-                datos_productos.append({"nombre": nombre, "cantidad": int(cantidad), "precio": precio, "peso": peso, "volumen": vol})
+                st.markdown("**Datos para el Semáforo 🚥**")
+                c6, c7, c8 = st.columns(3)
+                stock_actual = c6.number_input("Stock actual (unidades)", min_value=0, value=0, step=1, key=f"s_{i}")
+                ventas_semanales = c7.number_input("Ventas por semana", min_value=0, value=0, step=1, key=f"v_{i}")
+                dias_entrega = c8.number_input("Días de entrega", min_value=1, value=60, step=1, key=f"d_{i}")
+            
+                datos_productos.append({
+                "nombre": nombre, "cantidad": int(cantidad), 
+                "precio": precio, "peso": peso, "volumen": vol,
+                "stock_actual": int(stock_actual),
+                "ventas_semanales": int(ventas_semanales),
+                "dias_entrega": int(dias_entrega)
+            })
             datos_gastos = panel_gastos(prefix="manual_")
             submit = st.form_submit_button("Calcular costos y generar reporte", type="primary", use_container_width=True)
-            st.markdown("**Datos para el Semáforo 🚥**")
-            c6, c7, c8 = st.columns(3)
-            stock_actual = c6.number_input("Stock actual (unidades)", min_value=0, value=0, step=1, key=f"s_{i}")
-            ventas_semanales = c7.number_input("Ventas por semana", min_value=0, value=0, step=1, key=f"v_{i}")
-            dias_entrega = c8.number_input("Días de entrega", min_value=1, value=60, step=1, key=f"d_{i}")
-        
+  
         if submit:
             errores = []
             productos = []
@@ -396,7 +403,16 @@ def main():
                     peso = leer_decimal(d["peso"], f"peso producto {i}", permitir_cero=False)
                     vol = leer_decimal(d["volumen"], f"volumen producto {i}", permitir_cero=False)
                     cantidad = d["cantidad"]
-                    productos.append({"nombre": nombre, "cantidad": cantidad, "precio_china": precio, "peso_total": peso * cantidad, "volumen_total": vol * cantidad, "gastos": {}})
+                    productos.append({
+                    "nombre": nombre, "cantidad": cantidad,
+                    "precio_china": precio,
+                    "peso_total": peso * cantidad,
+                    "volumen_total": vol * cantidad,
+                    "gastos": {},
+                    "stock_actual": d["stock_actual"],
+                    "ventas_semanales": d["ventas_semanales"],
+                    "dias_entrega": d["dias_entrega"]
+                })
                 except ValueError as e:
                     errores.append(str(e))
             gastos, errores_g = validar_gastos(datos_gastos)
