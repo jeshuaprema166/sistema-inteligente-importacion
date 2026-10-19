@@ -17,7 +17,7 @@ def verificar_acceso():
     * Descubra qué productos le dejan ganancia real y cuáles no.
     * Alarmas de reposición de inventario 🟢🟡🔴 por IA.
     * Optimice el espacio de su contenedor y evite pérdidas por costos ocultos.
-    * Defina con certeza y fácilmente a qué proveedor del exterior comprar, o si es mejor hacerlo localmente con ✨ayuda de la IA✨
+    * Defina fácilmente y con certeza a qué proveedor del exterior debe comprar, o si es mejor hacerlo localmente con ✨ayuda de la IA 🤖✨
         """)
         
     # Texto destacado
