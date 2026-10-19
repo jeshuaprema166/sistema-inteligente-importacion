@@ -35,7 +35,7 @@ def verificar_acceso():
     
     with col_centro:
         st.markdown("<h4 style='text-align: center; margin-top: 20px;'>Diseñado por su Asesor de<br>Importación Inteligente<br>Prof. Jesús Pulido V.</h4>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center;'>Teléfonos de contacto:<br>0424-728.3299 / 0416-291.6426</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center;'>Teléfonos de contacto:<br>0424-728.3199 / 0416-291.6426</p>", unsafe_allow_html=True)
         
         # Aquí va la foto, dentro de la columna central
         try:
