@@ -27,7 +27,7 @@ def verificar_acceso():
     """, unsafe_allow_html=True)
     
     st.markdown("**Instrucciones:**")
-    st.markdown("1. Una vez dentro, vaya al menú de la izquierda (⏪) para configurar los datos de su empresa: Razón Social (Nombre), RIF y Propietario.   Así como los márgenes (%) de utilidad y descuentos previstos.")
+    st.markdown("1. Una vez dentro, vaya al menú de la izquierda (⏪) para configurar los datos de su empresa: Razón Social (Nombre), RIF y Propietario.  También los márgenes (%) de utilidad y descuentos previstos.")
     st.markdown("2. Para ingresar al Sistema, escriba a continuación la contraseña 🔑 suministrada por su Asesor de Importación para comenzar el análisis.")
     
     # --- FIRMA Y FOTO ---
