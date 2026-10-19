@@ -379,7 +379,7 @@ def main():
                 st.markdown("**Datos para el Semáforo 🚥**")
                 c6, c7, c8 = st.columns(3)
                 stock_actual = c6.number_input("Stock actual (unidades)", min_value=0, value=0, step=1, key=f"s_{i}")
-                ventas_semanales = c7.number_input("Ventas por semana", min_value=0, value=0, step=1, key=f"v_{i}")
+                ventas_semanales = c7.number_input("Ventas por semana", min_value=0, value=0, step=1, key=f"vs_{i}")
                 dias_entrega = c8.number_input("Días de entrega", min_value=1, value=60, step=1, key=f"d_{i}")
             
                 datos_productos.append({
