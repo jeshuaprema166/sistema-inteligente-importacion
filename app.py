@@ -379,7 +379,12 @@ def main():
                 datos_productos.append({"nombre": nombre, "cantidad": int(cantidad), "precio": precio, "peso": peso, "volumen": vol})
             datos_gastos = panel_gastos(prefix="manual_")
             submit = st.form_submit_button("Calcular costos y generar reporte", type="primary", use_container_width=True)
-
+            st.markdown("**Datos para el Semáforo 🚥**")
+            c6, c7, c8 = st.columns(3)
+            stock_actual = c6.number_input("Stock actual (unidades)", min_value=0, value=0, step=1, key=f"s_{i}")
+            ventas_semanales = c7.number_input("Ventas por semana", min_value=0, value=0, step=1, key=f"v_{i}")
+            dias_entrega = c8.number_input("Días de entrega", min_value=1, value=60, step=1, key=f"d_{i}")
+        
         if submit:
             errores = []
             productos = []
