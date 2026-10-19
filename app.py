@@ -20,28 +20,28 @@ def verificar_acceso():
         
     # Texto destacado
     st.markdown("""
-<div style="background-color: #e8f4f8; padding: 15px; border-radius: 5px; text-align: center; border-left: 5px solid #2196F3; margin-top: 20px; margin-bottom: 20px;">
+    <div style="background-color: #e8f4f8; padding: 15px; border-radius: 5px; text-align: center; border-left: 5px solid #2196F3; margin-top: 20px; margin-bottom: 20px;">
     <strong>"UNA HERRAMIENTA DISEÑADA PARA PROTEGER SU CAPITAL Y ASEGURAR QUE SU NEGOCIO SIEMPRE CREZCA"</strong>
-</div>
-""", unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("**Instrucciones:**")
     st.markdown("1. Una vez dentro, vaya al menú de la izquierda (⏪) para configurar los datos de su empresa: Razón Social (Nombre), RIF y Propietario. Así como los márgenes (%) de utilidad y descuentos previstos.")
     st.markdown("2. Para ingresar al Sistema, escriba a continuación la contraseña suministrada por su Asesor de Importación para comenzar el análisis. 🔑")
     
     # --- FIRMA Y FOTO ---
-# Damos 1 espacio vacío, 1 para el texto y 1 para la foto
-col_izq, col_centro, col_der = st.columns([1, 1, 1]) 
-
-with col_centro:
-    st.markdown("<h4 style='text-align: center; margin-top: 20px;'>Diseñado por su Asesor de Importación<br>Prof. Jesús Pulido V.</h4>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Teléfonos de contacto:<br>0424-728.3299 / 0416-291.6426</p>", unsafe_allow_html=True)
+    # Damos 1 espacio vacío, 1 para el texto y 1 para la foto
+    col_izq, col_centro, col_der = st.columns([1, 1, 1]) 
     
-    # Aquí va la foto, dentro de la columna central
-    try:
-        st.image("profesor.jpg", width=250) # Ajuste el ancho a su gusto
-    except:
-        st.write("📷")
+    with col_centro:
+        st.markdown("<h4 style='text-align: center; margin-top: 20px;'>Diseñado por su Asesor de Importación<br>Prof. Jesús Pulido V.</h4>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center;'>Teléfonos de contacto:<br>0424-728.3299 / 0416-291.6426</p>", unsafe_allow_html=True)
+        
+        # Aquí va la foto, dentro de la columna central
+        try:
+            st.image("profesor.jpg", width=250) # Ajuste el ancho a su gusto
+        except:
+            st.write("📷")
     
     st.divider()
     
