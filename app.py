@@ -699,6 +699,28 @@ def mostrar_resultado(productos, gastos_contenedor, config):
 
     st.markdown("---")
 
+    # 5.5. FICHA DEL ASESOR DE IMPORTACIÓN
+    col_foto, col_datos = st.columns([1, 4])
+    
+    with col_foto:
+        if os.path.exists("profesor.jpg"):
+            st.image("profesor.jpg", width=110)
+        else:
+            st.markdown("📸 **Prof. Jesús Pulido V.**")
+            
+    with col_datos:
+        st.markdown("""
+        <div style='background-color: #f0f4f8; padding: 12px; border-radius: 8px; border-left: 4px solid #1f497d;'>
+            <h5 style='color: #1f497d; margin:0;'>Diseñado y elaborado por su Asesor de Importación Inteligente</h5>
+            <h4 style='color: #111111; margin:4px 0;'>Prof. Jesús Pulido V.</h4>
+            <p style='margin:2px 0; font-size:0.85rem; color:#444;'>📞 <b>Teléfonos de contacto:</b> 0424-728.3199 / 0416-291.6426</p>
+            <p style='margin:2px 0; font-size:0.85rem; color:#444;'>✉️ <b>Correo:</b> jeshua166@gmail.com</p>
+            <p style='margin:2px 0; font-size:0.85rem; color:#666;'>📍 <b>Ubicación:</b> Santa Bárbara de Barinas, Venezuela</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    st.markdown("")
+
     # 6. ACCIONES Y DESCARGAS
     col_btn1, col_btn2 = st.columns(2)
 
