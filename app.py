@@ -448,6 +448,8 @@ def generar_pdf(productos, gastos_contenedor, config):
     
     for p in productos:
         color, mensaje, sugerido = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0))
+        # Convertir emoji a texto seguro para FPDF
+        txt_semaforo = "ROJO" if "🔴" in color else ("NARANJA" if "🟠" in color else "VERDE")
         
         pdf.cell(50, 6, f" {p['nombre'][:25]}", border=1)
         pdf.cell(18, 6, f"{p['cantidad']}", border=1, align="C")
@@ -455,7 +457,7 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.cell(24, 6, f"$ {p['pvp_normal']:.2f}", border=1, align="C")
         pdf.cell(24, 6, f"$ {p['pvp_mayorista']:.2f}", border=1, align="C")
         pdf.cell(24, 6, f"$ {p['pvp_especial']:.2f}", border=1, align="C")
-        pdf.cell(26, 6, f"{color} {mensaje[:10]}", border=1, align="C")
+        pdf.cell(26, 6, f"{txt_semaforo} {mensaje[:6]}", border=1, align="C")
         pdf.ln(6)
         
     pdf.ln(10)
@@ -468,11 +470,12 @@ def generar_pdf(productos, gastos_contenedor, config):
     
     for p in productos:
         color, mensaje, sugerido = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0))
+        txt_semaforo = "ROJO" if "🔴" in color else ("NARANJA" if "🟠" in color else "VERDE")
         
         pdf.set_font("Helvetica", "B", 9)
         pdf.set_fill_color(230, 240, 250)
         pdf.set_text_color(31, 73, 125)
-        pdf.cell(0, 7, f"  Producto: {p['nombre']} | Semáforo: {color} {mensaje} (Pedir: {sugerido} unds)", border=1, fill=True)
+        pdf.cell(0, 7, f"  Producto: {p['nombre']} | Estado: {txt_semaforo} - {mensaje} (Pedir: {sugerido} unds)", border=1, fill=True)
         pdf.ln(7)
         
         pdf.set_font("Helvetica", "", 8)
@@ -494,7 +497,7 @@ def generar_pdf(productos, gastos_contenedor, config):
         
     pdf.ln(5)
     
-    # --- FICHA DEL ASESOR DE IMPORTACIÓN EN EL PDF (BLINDADA) ---
+    # --- FICHA DEL ASESOR DE IMPORTACIÓN EN EL PDF ---
     try:
         pdf.set_fill_color(240, 245, 250)
         pdf.set_draw_color(31, 73, 125)
@@ -529,15 +532,13 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.set_x(35)
         pdf.cell(0, 4, "Ubicación: Santa Bárbara de Barinas, Venezuela")
     except Exception:
-        pass # Si algo falla en la ficha, el reporte se genera igual sin detenerse
+        pass
     
-    # Salida segura del PDF compatible con todas las versiones de fpdf2
     output = pdf.output()
     if isinstance(output, str):
         return output.encode("latin1")
     return bytes(output)
-
-    
+      
 def mostrar_resultado(productos, gastos_contenedor, config):
     st.success("✅ Reporte generado correctamente.")
     
