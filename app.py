@@ -750,20 +750,20 @@ def mostrar_resultado(productos, gastos_contenedor, config):
             mime="text/plain",
             use_container_width=True
         )
-
     with col_btn2:
         try:
             pdf_data = generar_pdf(productos, gastos_contenedor, config)
             st.download_button(
-                label="📕 Descargar Reporte Ejecutivo (PDF)",
+                label="📄 Descargar Reporte Ejecutivo (PDF)",
                 data=pdf_data,
-                file_name=f"Reporte_Ejecutivo_{config['empresa'].replace(' ', '_')}.pdf",
+                file_name=f"Reporte_Importacion_{config['empresa']}.pdf",
                 mime="application/pdf",
                 use_container_width=True
             )
-        except Exception:
-            st.info("💡 Para descargar el informe en PDF, verifique la función de generación.")
+        except Exception as e:
+            st.error(f"❌ Error al generar PDF: {str(e)}")
 
+    
 def main():
     st.set_page_config(page_title="Costos de Importación | Los Mangos", page_icon="📋", layout="wide")
     inicializar_estado()
