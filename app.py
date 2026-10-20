@@ -381,16 +381,16 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # --- ENCABEZADO CORPORATIVO ---
-    pdf.set_font("Helvetica", "B", 16)
+    # --- ENCABEZADO CORPORATIVO MEJORADO ---
+    pdf.set_font("Helvetica", "B", 15)
     pdf.set_text_color(31, 73, 125)
     pdf.cell(0, 10, "REPORTE EJECUTIVO DE IMPORTACIÓN", align="C")
     pdf.ln(10)
     
-    pdf.set_font("Helvetica", "", 10)
-    pdf.set_text_color(80, 80, 80)
-    pdf.cell(0, 6, f"{config['empresa']} | RIF: {config['rif']} | Propietario: {config['propietario']}", align="C")
-    pdf.ln(12)
+    pdf.set_font("Helvetica", "B", 11)  # Un punto más alto y en negrita
+    pdf.set_text_color(50, 50, 50)
+    pdf.cell(0, 6, f"{config['empresa']}  |  RIF: {config['rif']}  |  Propietario: {config['propietario']}", align="C")
+    pdf.ln(14)
     
     # --- TARJETAS KPIs SUPERIORES ---
     total_unidades = sum(p["cantidad"] for p in productos)
@@ -444,20 +444,32 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.ln(7)
     
     pdf.set_font("Helvetica", "", 8)
-    pdf.set_text_color(40, 40, 40)
     
     for p in productos:
         color, mensaje, sugerido = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0))
-        # Convertir emoji a texto seguro para FPDF
-        txt_semaforo = "ROJO" if "🔴" in color else ("NARANJA" if "🟠" in color else "VERDE")
         
+        # Determinar texto y color RGB para la tabla resumen
+        if "🔴" in color:
+            txt_semaforo = "ROJO"
+            r_col, g_col, b_col = 200, 0, 0
+        elif "🟠" in color:
+            txt_semaforo = "NARANJA"
+            r_col, g_col, b_col = 220, 130, 0
+        else:
+            txt_semaforo = "VERDE"
+            r_col, g_col, b_col = 0, 150, 0
+            
+        pdf.set_text_color(40, 40, 40)
         pdf.cell(50, 6, f" {p['nombre'][:25]}", border=1)
         pdf.cell(18, 6, f"{p['cantidad']}", border=1, align="C")
         pdf.cell(24, 6, f"$ {p['costo_unitario']:.2f}", border=1, align="C")
         pdf.cell(24, 6, f"$ {p['pvp_normal']:.2f}", border=1, align="C")
         pdf.cell(24, 6, f"$ {p['pvp_mayorista']:.2f}", border=1, align="C")
         pdf.cell(24, 6, f"$ {p['pvp_especial']:.2f}", border=1, align="C")
-        pdf.cell(26, 6, f"{txt_semaforo} {mensaje[:6]}", border=1, align="C")
+        
+        # Pintar el texto del semáforo con su color correspondiente
+        pdf.set_text_color(r_col, g_col, b_col)
+        pdf.cell(26, 6, f"{txt_semaforo}", border=1, align="C")
         pdf.ln(6)
         
     pdf.ln(10)
@@ -470,29 +482,52 @@ def generar_pdf(productos, gastos_contenedor, config):
     
     for p in productos:
         color, mensaje, sugerido = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0))
-        txt_semaforo = "ROJO" if "🔴" in color else ("NARANJA" if "🟠" in color else "VERDE")
+        
+        if "🔴" in color:
+            txt_semaforo = "ROJO"
+            r_col, g_col, b_col = 200, 0, 0
+        elif "🟠" in color:
+            txt_semaforo = "NARANJA"
+            r_col, g_col, b_col = 220, 130, 0
+        else:
+            txt_semaforo = "VERDE"
+            r_col, g_col, b_col = 0, 150, 0
         
         pdf.set_font("Helvetica", "B", 9)
         pdf.set_fill_color(230, 240, 250)
         pdf.set_text_color(31, 73, 125)
-        pdf.cell(0, 7, f"  Producto: {p['nombre']} | Estado: {txt_semaforo} - {mensaje} (Pedir: {sugerido} unds)", border=1, fill=True)
+        pdf.cell(0, 7, f"  Producto: {p['nombre']} (Pedir: {sugerido} unds)", border=1, fill=True)
         pdf.ln(7)
+        
+        # Imprimir Estado con su color específico
+        pdf.set_font("Helvetica", "B", 8)
+        pdf.set_text_color(50, 50, 50)
+        pdf.cell(35, 5, "  Estado de Alerta:", border="L")
+        pdf.set_text_color(r_col, g_col, b_col)
+        pdf.cell(155, 5, f"{txt_semaforo} - {mensaje}", border="R")
+        pdf.ln(5)
         
         pdf.set_font("Helvetica", "", 8)
         pdf.set_text_color(50, 50, 50)
-        
         info_izq = f"Cant.: {p['cantidad']} unds | P. China U.: $ {p['precio_china']:.2f} | Peso T.: {p['peso_total']:.2f} kg | Vol. T.: {p['volumen_total']:.4f} m3"
         info_der = f"Gastos Arribo U.: $ {p['gasto_unitario']:.2f} | COSTO REAL EN ESTANTE: $ {p['costo_unitario']:.2f}"
         
         pdf.cell(0, 5, f"  {info_izq}", border="LR")
         pdf.ln(5)
         pdf.set_font("Helvetica", "B", 8)
-        pdf.cell(0, 5, f"  {info_der}", border="LRB")
+        pdf.cell(0, 5, f"  {info_der}", border="LR")
         pdf.ln(5)
         
-        pdf.set_font("Helvetica", "I", 6.5)
-        gastos_txt = " | ".join([f"{k}: $ {v:.2f}" for k, v in p["gastos"].items()])
-        pdf.cell(0, 5, f"  Gastos Asignados: {gastos_txt}", border="LRB")
+        # --- DIVIDIR GASTOS ASIGNADOS EN DOS LÍNEAS ---
+        gastos_items = list(p["gastos"].items())
+        mitad = (len(gastos_items) + 1) // 2
+        linea_1 = " | ".join([f"{k}: $ {v:.2f}" for k, v in gastos_items[:mitad]])
+        linea_2 = " | ".join([f"{k}: $ {v:.2f}" for k, v in gastos_items[mitad:]])
+        
+        pdf.set_font("Helvetica", "I", 7.5)
+        pdf.cell(0, 4.5, f"  Gastos (Parte 1): {linea_1}", border="LR")
+        pdf.ln(4.5)
+        pdf.cell(0, 4.5, f"  Gastos (Parte 2): {linea_2}", border="LRB")
         pdf.ln(8)
         
     pdf.ln(5)
