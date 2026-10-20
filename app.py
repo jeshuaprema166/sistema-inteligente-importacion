@@ -494,41 +494,49 @@ def generar_pdf(productos, gastos_contenedor, config):
         
     pdf.ln(5)
     
-    # --- FICHA DEL ASESOR DE IMPORTACIÓN EN EL PDF ---
-    pdf.set_fill_color(240, 245, 250)
-    pdf.set_draw_color(31, 73, 125)
-    pdf.rect(10, pdf.get_y(), 190, 24, style="DF")
+    # --- FICHA DEL ASESOR DE IMPORTACIÓN EN EL PDF (BLINDADA) ---
+    try:
+        pdf.set_fill_color(240, 245, 250)
+        pdf.set_draw_color(31, 73, 125)
+        pdf.rect(10, pdf.get_y(), 190, 24, style="DF")
+        
+        y_ficha = pdf.get_y() + 2
+        
+        if os.path.exists("profesor.jpg"):
+            try:
+                pdf.image("profesor.jpg", x=12, y=y_ficha, w=20)
+            except Exception:
+                pass
+                
+        pdf.set_xy(35, y_ficha)
+        pdf.set_font("Helvetica", "B", 9)
+        pdf.set_text_color(31, 73, 125)
+        pdf.cell(0, 4, "Diseñado y elaborado por su Asesor de Importación Inteligente:")
+        pdf.ln(4)
+        
+        pdf.set_x(35)
+        pdf.set_font("Helvetica", "B", 10)
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(0, 5, "Prof. Jesús Pulido V.")
+        pdf.ln(5)
+        
+        pdf.set_x(35)
+        pdf.set_font("Helvetica", "", 8)
+        pdf.set_text_color(80, 80, 80)
+        pdf.cell(0, 4, "Teléfonos de contacto: 0424-728.3199 / 0416-291.6426  |  Correo: jeshua166@gmail.com")
+        pdf.ln(4)
+        
+        pdf.set_x(35)
+        pdf.cell(0, 4, "Ubicación: Santa Bárbara de Barinas, Venezuela")
+    except Exception:
+        pass # Si algo falla en la ficha, el reporte se genera igual sin detenerse
     
-    y_ficha = pdf.get_y() + 2
-    
-    if os.path.exists("profesor.jpg"):
-        try:
-            pdf.image("profesor.jpg", x=12, y=y_ficha, w=20)
-        except Exception:
-            pass
-            
-    pdf.set_xy(35, y_ficha)
-    pdf.set_font("Helvetica", "B", 9)
-    pdf.set_text_color(31, 73, 125)
-    pdf.cell(0, 4, "Diseñado y elaborado por su Asesor de Importación Inteligente:")
-    pdf.ln(4)
-    
-    pdf.set_x(35)
-    pdf.set_font("Helvetica", "B", 10)
-    pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 5, "Prof. Jesús Pulido V.")
-    pdf.ln(5)
-    
-    pdf.set_x(35)
-    pdf.set_font("Helvetica", "", 8)
-    pdf.set_text_color(80, 80, 80)
-    pdf.cell(0, 4, "Teléfonos de contacto: 0424-728.3199 / 0416-291.6426  |  Correo: jeshua166@gmail.com")
-    pdf.ln(4)
-    
-    pdf.set_x(35)
-    pdf.cell(0, 4, "Ubicación: Santa Bárbara de Barinas, Venezuela")
-    
-    return bytes(pdf.output())
+    # Salida segura del PDF compatible con todas las versiones de fpdf2
+    output = pdf.output()
+    if isinstance(output, str):
+        return output.encode("latin1")
+    return bytes(output)
+
     
 def mostrar_resultado(productos, gastos_contenedor, config):
     st.success("✅ Reporte generado correctamente.")
