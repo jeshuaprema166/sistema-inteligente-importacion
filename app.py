@@ -3,6 +3,7 @@ import pandas as pd
 import streamlit as st
 import io
 from fpdf import FPDF
+import os
 
 # --- CONFIGURACIÓN DE SEGURIDAD ---
 def verificar_acceso():
