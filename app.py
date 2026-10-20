@@ -446,218 +446,208 @@ def generar_pdf(productos, gastos_contenedor, config):
     return bytes(pdf.output())
 
 def mostrar_resultado(productos, gastos_contenedor, config):
-# ==============================================================================
-# SECCIÓN: REPORTE EJECUTIVO PROFESIONAL EN STREAMLIT
-# ==============================================================================
-
-# 1. ESTILOS CSS PERSONALIZADOS (Inyección de diseño limpio y corporativo)
-st.markdown("""
-<style>
-    /* Estilos de las Tarjetas de Métricas Superiores */
-    .kpi-container {
-        background-color: #ffffff;
-        border-radius: 12px;
-        padding: 18px;
-        border-left: 5px solid #1f497d;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.04);
-        text-align: center;
-        margin-bottom: 15px;
-    }
-    .kpi-title {
-        font-size: 0.85rem;
-        color: #555555;
-        font-weight: 600;
-        text-transform: uppercase;
-        margin-bottom: 4px;
-    }
-    .kpi-value {
-        font-size: 1.4rem;
-        color: #1f497d;
-        font-weight: 800;
-    }
+    st.success("✅ Reporte generado correctamente.")
     
-    /* Resaltado de Alertas y Semáforos */
-    .badge-rojo {
-        background-color: #ffebee;
-        color: #c62828;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-weight: bold;
-    }
-    .badge-amarillo {
-        background-color: #fffde7;
-        color: #f57f17;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-weight: bold;
-    }
-    .badge-verde {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-weight: bold;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-st.divider()
-
-# 2. ENCABEZADO CORPORATIVO
-st.markdown("<h2 style='text-align: center; color: #1f497d;'>📊 REPORTE EJECUTIVO DE IMPORTACIÓN</h2>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align: center; color: #666666; font-size: 1.05rem;'><b>{config['empresa']}</b> | RIF: {config['rif']} | Propietario: {config['propietario']}</p>", unsafe_allow_html=True)
-st.markdown("")
-
-# 3. TARJETAS MÉTRICAS EJECUTIVAS SUPERIORES (KPIs)
-total_unidades = sum(p["cantidad"] for p in productos)
-gasto_total_contenedor = sum(sum(p["gastos"].values()) for p in productos)
-costo_total_fob = sum(p["precio_china"] * p["cantidad"] for p in productos)
-
-col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4)
-
-with col_kpi1:
-    st.markdown(f"""
-    <div class="kpi-container">
-        <div class="kpi-title">📦 Productos</div>
-        <div class="kpi-value">{len(productos)} ítems</div>
-    </div>
+    # 1. ESTILOS CSS PERSONALIZADOS
+    st.markdown("""
+    <style>
+        .kpi-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 18px;
+            border-left: 5px solid #1f497d;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .kpi-title {
+            font-size: 0.85rem;
+            color: #555555;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .kpi-value {
+            font-size: 1.4rem;
+            color: #1f497d;
+            font-weight: 800;
+        }
+        .badge-rojo {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .badge-amarillo {
+            background-color: #fffde7;
+            color: #f57f17;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .badge-verde {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+    </style>
     """, unsafe_allow_html=True)
 
-with col_kpi2:
-    st.markdown(f"""
-    <div class="kpi-container">
-        <div class="kpi-title">🔢 Cant. Unidades</div>
-        <div class="kpi-value">{total_unidades:,} unds</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.divider()
 
-with col_kpi3:
-    st.markdown(f"""
-    <div class="kpi-container">
-        <div class="kpi-title">💰 Costo Mercancía</div>
-        <div class="kpi-value">{formato_dinero(costo_total_fob)}</div>
-    </div>
-    """, unsafe_allow_html=True)
+    # 2. ENCABEZADO CORPORATIVO
+    st.markdown("<h2 style='text-align: center; color: #1f497d;'>📊 REPORTE EJECUTIVO DE IMPORTACIÓN</h2>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align: center; color: #666666; font-size: 1.05rem;'><b>{config['empresa']}</b> | RIF: {config['rif']} | Propietario: {config['propietario']}</p>", unsafe_allow_html=True)
+    st.markdown("")
 
-with col_kpi4:
-    st.markdown(f"""
-    <div class="kpi-container">
-        <div class="kpi-title">🚢 Gastos Arribo</div>
-        <div class="kpi-value">{formato_dinero(gasto_total_contenedor)}</div>
-    </div>
-    """, unsafe_allow_html=True)
+    # 3. TARJETAS MÉTRICAS EJECUTIVAS SUPERIORES (KPIs)
+    total_unidades = sum(p["cantidad"] for p in productos)
+    gasto_total_contenedor = sum(sum(p["gastos"].values()) for p in productos)
+    costo_total_fob = sum(p["precio_china"] * p["cantidad"] for p in productos)
 
-st.markdown("")
+    col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4)
 
-# 4. TABLA RESUMEN INTERACTIVA Y LIMPIA
-st.markdown("<h4 style='color: #1f497d;'>📋 Resumen General de Costos y Precios de Venta</h4>", unsafe_allow_html=True)
+    with col_kpi1:
+        st.markdown(f"""
+        <div class="kpi-container">
+            <div class="kpi-title">📦 Productos</div>
+            <div class="kpi-value">{len(productos)} ítems</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-datos_resumen = []
-for p in productos:
-    color, mensaje, sugerido = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0))
-    datos_resumen.append({
-        "Producto": p["nombre"],
-        "Cant.": p["cantidad"],
-        "Costo U.": f"$ {p['costo_unitario']:.2f}",
-        "PVP Normal": f"$ {p['pvp_normal']:.2f}",
-        "PVP Mayorista": f"$ {p['pvp_mayorista']:.2f}",
-        "PVP Especial": f"$ {p['pvp_especial']:.2f}",
-        "SemáforoIA": f"{color} {mensaje}",
-        "Pedir (Unds)": sugerido
-    })
+    with col_kpi2:
+        st.markdown(f"""
+        <div class="kpi-container">
+            <div class="kpi-title">🔢 Cant. Unidades</div>
+            <div class="kpi-value">{total_unidades:,} unds</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-df_resumen = pd.DataFrame(datos_resumen)
-st.dataframe(df_resumen, use_container_width=True, hide_index=True)
+    with col_kpi3:
+        st.markdown(f"""
+        <div class="kpi-container">
+            <div class="kpi-title">💰 Costo Mercancía</div>
+            <div class="kpi-value">{formato_dinero(costo_total_fob)}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-st.markdown("---")
+    with col_kpi4:
+        st.markdown(f"""
+        <div class="kpi-container">
+            <div class="kpi-title">🚢 Gastos Arribo</div>
+            <div class="kpi-value">{formato_dinero(gasto_total_contenedor)}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-# 5. DESGLOSE DETALLADO POR PRODUCTO (ACORDEONES / EXPANDERS)
-st.markdown("<h4 style='color: #1f497d;'>🔍 Desglose Individual y Prorrateo de Gastos</h4>", unsafe_allow_html=True)
+    st.markdown("")
 
-for i, p in enumerate(productos, start=1):
-    color, mensaje, sugerido = evaluar_semaforo(
-        p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0)
-    )
-    
-    # Título limpio del acordeón
-    titulo_expander = f"📦 {p['nombre']}  |  {color} {mensaje} (Pedir: {sugerido} unds)"
-    
-    with st.expander(titulo_expander, expanded=(i == 1)): # El primer producto aparece abierto por defecto
+    # 4. TABLA RESUMEN INTERACTIVA Y LIMPIA
+    st.markdown("<h4 style='color: #1f497d;'>📋 Resumen General de Costos y Precios de Venta</h4>", unsafe_allow_html=True)
+
+    datos_resumen = []
+    for p in productos:
+        color, mensaje, sugerido = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0))
+        datos_resumen.append({
+            "Producto": p["nombre"],
+            "Cant.": p["cantidad"],
+            "Costo U.": f"$ {p['costo_unitario']:.2f}",
+            "PVP Normal": f"$ {p['pvp_normal']:.2f}",
+            "PVP Mayorista": f"$ {p['pvp_mayorista']:.2f}",
+            "PVP Especial": f"$ {p['pvp_especial']:.2f}",
+            "SemáforoIA": f"{color} {mensaje}",
+            "Pedir (Unds)": sugerido
+        })
+
+    df_resumen = pd.DataFrame(datos_resumen)
+    st.dataframe(df_resumen, use_container_width=True, hide_index=True)
+
+    st.markdown("---")
+
+    # 5. DESGLOSE DETALLADO POR PRODUCTO (ACORDEONES / EXPANDERS)
+    st.markdown("<h4 style='color: #1f497d;'>🔍 Desglose Individual y Prorrateo de Gastos</h4>", unsafe_allow_html=True)
+
+    for i, p in enumerate(productos, start=1):
+        color, mensaje, sugerido = evaluar_semaforo(
+            p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0)
+        )
         
-        c_left, c_right = st.columns(2)
+        titulo_expander = f"📦 {p['nombre']}  |  {color} {mensaje} (Pedir: {sugerido} unds)"
         
-        with c_left:
-            st.markdown("##### 📌 Datos Físicos y de Origen")
-            st.write(f"• **Cantidad de Unidades:** {p['cantidad']:,} unds")
-            st.write(f"• **Precio China (Unidad):** {formato_dinero(p['precio_china'])}")
-            st.write(f"• **Precio China (Total):** {formato_dinero(p['precio_china'] * p['cantidad'])}")
-            st.write(f"• **Peso Total:** {p['peso_total']:,.3f} kg")
-            st.write(f"• **Volumen Total:** {p['volumen_total']:,.6f} m³")
-
-        with c_right:
-            st.markdown("##### 🏷️ Costo Real y Precios Sugeridos")
-            st.write(f"• **Gastos de Arribo (Unidad):** {formato_dinero(p['gasto_unitario'])}")
-            st.write(f"• **COSTO REAL EN ESTANTE:** **{formato_dinero(p['costo_unitario'])}**")
-            st.write(f"• **PVP Normal:** **$ {p['pvp_normal']:,.2f}**")
-            st.write(f"• **PVP Mayorista:** **$ {p['pvp_mayorista']:,.2f}**")
-            st.write(f"• **PVP Especial:** **$ {p['pvp_especial']:,.2f}**")
+        with st.expander(titulo_expander, expanded=(i == 1)):
             
-        st.markdown("---")
-        st.markdown("##### 🚢 Gastos de Arribo Asignados (Prorrateo DUAL por Peso y Volumen):")
-        
-        # Malla de 3 columnas para mostrar los 6 gastos asignados de forma estética
-        g_col1, g_col2, g_col3 = st.columns(3)
-        gastos_items = list(p["gastos"].items())
-        
-        for idx, (nombre_gasto, monto_asig) in enumerate(gastos_items):
-            por_und = monto_asig / p["cantidad"]
-            col_target = g_col1 if idx % 3 == 0 else (g_col2 if idx % 3 == 1 else g_col3)
-            col_target.metric(
-                label=nombre_gasto, 
-                value=formato_dinero(monto_asig), 
-                delta=f"{formato_dinero(por_und)} /und",
-                delta_color="off"
-            )
+            c_left, c_right = st.columns(2)
             
-        st.markdown("")
-        
-        # Alerta visual personalizada según el Semáforo
-        if color == "🔴":
-            st.error(f"🚨 **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades de inmediato.")
-        elif color == "🟡":
-            st.warning(f"⚠️ **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades próximamente.")
-        else:
-            st.success(f"🟢 **Estado de Inventario:** {mensaje}. No requiere reposición por el momento.")
+            with c_left:
+                st.markdown("##### 📌 Datos Físicos y de Origen")
+                st.write(f"• **Cantidad de Unidades:** {p['cantidad']:,} unds")
+                st.write(f"• **Precio China (Unidad):** {formato_dinero(p['precio_china'])}")
+                st.write(f"• **Precio China (Total):** {formato_dinero(p['precio_china'] * p['cantidad'])}")
+                st.write(f"• **Peso Total:** {p['peso_total']:,.3f} kg")
+                st.write(f"• **Volumen Total:** {p['volumen_total']:,.6f} m³")
 
-st.markdown("---")
+            with c_right:
+                st.markdown("##### 🏷️ Costo Real y Precios Sugeridos")
+                st.write(f"• **Gastos de Arribo (Unidad):** {formato_dinero(p['gasto_unitario'])}")
+                st.write(f"• **COSTO REAL EN ESTANTE:** **{formato_dinero(p['costo_unitario'])}**")
+                st.write(f"• **PVP Normal:** **$ {p['pvp_normal']:,.2f}**")
+                st.write(f"• **PVP Mayorista:** **$ {p['pvp_mayorista']:,.2f}**")
+                st.write(f"• **PVP Especial:** **$ {p['pvp_especial']:,.2f}**")
+                
+            st.markdown("---")
+            st.markdown("##### 🚢 Gastos de Arribo Asignados (Prorrateo DUAL por Peso y Volumen):")
+            
+            g_col1, g_col2, g_col3 = st.columns(3)
+            gastos_items = list(p["gastos"].items())
+            
+            for idx, (nombre_gasto, monto_asig) in enumerate(gastos_items):
+                por_und = monto_asig / p["cantidad"]
+                col_target = g_col1 if idx % 3 == 0 else (g_col2 if idx % 3 == 1 else g_col3)
+                col_target.metric(
+                    label=nombre_gasto, 
+                    value=formato_dinero(monto_asig), 
+                    delta=f"{formato_dinero(por_und)} /und",
+                    delta_color="off"
+                )
+                
+            st.markdown("")
+            
+            if color == "🔴":
+                st.error(f"🚨 **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades de inmediato.")
+            elif color == "🟡":
+                st.warning(f"⚠️ **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades próximamente.")
+            else:
+                st.success(f"🟢 **Estado de Inventario:** {mensaje}. No requiere reposición por el momento.")
 
-# 6. ACCIONES Y DESCARGAS
-col_btn1, col_btn2 = st.columns(2)
+    st.markdown("---")
 
-with col_btn1:
-    reporte_texto = crear_reporte(productos, gastos_contenedor, config)
-    st.download_button(
-        label="📄 Descargar Reporte en Texto (.txt)",
-        data=reporte_texto,
-        file_name=f"Reporte_Importacion_{config['empresa'].replace(' ', '_')}.txt",
-        mime="text/plain",
-        use_container_width=True
-    )
+    # 6. ACCIONES Y DESCARGAS
+    col_btn1, col_btn2 = st.columns(2)
 
-with col_btn2:
-    # Si la función de PDF está configurada en su app:
-    try:
-        pdf_data = generar_pdf(productos, gastos_contenedor, config)
+    with col_btn1:
+        reporte_texto = crear_reporte(productos, gastos_contenedor, config)
         st.download_button(
-            label="📕 Descargar Reporte Ejecutivo (PDF)",
-            data=pdf_data,
-            file_name=f"Reporte_Ejecutivo_{config['empresa'].replace(' ', '_')}.pdf",
-            mime="application/pdf",
+            label="📄 Descargar Reporte en Texto (.txt)",
+            data=reporte_texto,
+            file_name=f"Reporte_Importacion_{config['empresa'].replace(' ', '_')}.txt",
+            mime="text/plain",
             use_container_width=True
         )
-    except Exception:
-        st.info("💡 Para descargar el informe en PDF, seleccione la opción de texto arriba o verifique la librería FPDF.")
 
+    with col_btn2:
+        try:
+            pdf_data = generar_pdf(productos, gastos_contenedor, config)
+            st.download_button(
+                label="📕 Descargar Reporte Ejecutivo (PDF)",
+                data=pdf_data,
+                file_name=f"Reporte_Ejecutivo_{config['empresa'].replace(' ', '_')}.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
+        except Exception:
+            st.info("💡 Para descargar el informe en PDF, verifique la función de generación.")
 
 def main():
     st.set_page_config(page_title="Costos de Importación | Los Mangos", page_icon="📋", layout="wide")
