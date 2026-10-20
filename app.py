@@ -383,13 +383,14 @@ def generar_pdf(productos, gastos_contenedor, config):
     
     # --- ENCABEZADO CORPORATIVO ---
     pdf.set_font("Helvetica", "B", 16)
-    pdf.set_text_color(31, 73, 125) # Azul corporativo
-    pdf.cell(0, 10, "REPORTE EJECUTIVO DE IMPORTACIÓN", ln=True, align="C")
+    pdf.set_text_color(31, 73, 125)
+    pdf.cell(0, 10, "REPORTE EJECUTIVO DE IMPORTACIÓN", align="C")
+    pdf.ln(10)
     
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(80, 80, 80)
-    pdf.cell(0, 6, f"{config['empresa']} | RIF: {config['rif']} | Propietario: {config['propietario']}", ln=True, align="C")
-    pdf.ln(5)
+    pdf.cell(0, 6, f"{config['empresa']} | RIF: {config['rif']} | Propietario: {config['propietario']}", align="C")
+    pdf.ln(12)
     
     # --- TARJETAS KPIs SUPERIORES ---
     total_unidades = sum(p["cantidad"] for p in productos)
@@ -410,7 +411,7 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.cell(w_kpi, 5, "COSTO MERCANCÍA", border="LRT", align="C", fill=True)
     pdf.cell(2, 5, "")
     pdf.cell(w_kpi, 5, "GASTOS ARRIBO", border="LRT", align="C", fill=True)
-    pdf.ln()
+    pdf.ln(5)
     
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_text_color(31, 73, 125)
@@ -421,12 +422,13 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.cell(w_kpi, 8, f"$ {costo_total_fob:,.2f}", border="LRB", align="C", fill=True)
     pdf.cell(2, 8, "")
     pdf.cell(w_kpi, 8, f"$ {gasto_total_contenedor:,.2f}", border="LRB", align="C", fill=True)
-    pdf.ln(10)
+    pdf.ln(15)
     
     # --- TABLA RESUMEN GENERAL ---
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_text_color(31, 73, 125)
-    pdf.cell(0, 8, "Resumen General de Costos y Precios de Venta", ln=True)
+    pdf.cell(0, 8, "Resumen General de Costos y Precios de Venta")
+    pdf.ln(8)
     
     pdf.set_font("Helvetica", "B", 8)
     pdf.set_text_color(255, 255, 255)
@@ -439,7 +441,7 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.cell(24, 7, "PVP May.", border=1, align="C", fill=True)
     pdf.cell(24, 7, "PVP Esp.", border=1, align="C", fill=True)
     pdf.cell(26, 7, "Semáforo", border=1, align="C", fill=True)
-    pdf.ln()
+    pdf.ln(7)
     
     pdf.set_font("Helvetica", "", 8)
     pdf.set_text_color(40, 40, 40)
@@ -454,14 +456,15 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.cell(24, 6, f"$ {p['pvp_mayorista']:.2f}", border=1, align="C")
         pdf.cell(24, 6, f"$ {p['pvp_especial']:.2f}", border=1, align="C")
         pdf.cell(26, 6, f"{color} {mensaje[:10]}", border=1, align="C")
-        pdf.ln()
+        pdf.ln(6)
         
-    pdf.ln(8)
+    pdf.ln(10)
     
     # --- DESGLOSE DETALLADO POR PRODUCTO ---
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_text_color(31, 73, 125)
-    pdf.cell(0, 8, "Desglose Individual y Prorrateo de Gastos", ln=True)
+    pdf.cell(0, 8, "Desglose Individual y Prorrateo de Gastos")
+    pdf.ln(8)
     
     for p in productos:
         color, mensaje, sugerido = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0))
@@ -469,7 +472,8 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.set_font("Helvetica", "B", 9)
         pdf.set_fill_color(230, 240, 250)
         pdf.set_text_color(31, 73, 125)
-        pdf.cell(0, 7, f"  Producto: {p['nombre']} | Semáforo: {color} {mensaje} (Pedir: {sugerido} unds)", border=1, ln=True, fill=True)
+        pdf.cell(0, 7, f"  Producto: {p['nombre']} | Semáforo: {color} {mensaje} (Pedir: {sugerido} unds)", border=1, fill=True)
+        pdf.ln(7)
         
         pdf.set_font("Helvetica", "", 8)
         pdf.set_text_color(50, 50, 50)
@@ -477,14 +481,16 @@ def generar_pdf(productos, gastos_contenedor, config):
         info_izq = f"Cant.: {p['cantidad']} unds | P. China U.: $ {p['precio_china']:.2f} | Peso T.: {p['peso_total']:.2f} kg | Vol. T.: {p['volumen_total']:.4f} m3"
         info_der = f"Gastos Arribo U.: $ {p['gasto_unitario']:.2f} | COSTO REAL EN ESTANTE: $ {p['costo_unitario']:.2f}"
         
-        pdf.cell(0, 5, f"  {info_izq}", border="LR", ln=True)
+        pdf.cell(0, 5, f"  {info_izq}", border="LR")
+        pdf.ln(5)
         pdf.set_font("Helvetica", "B", 8)
-        pdf.cell(0, 5, f"  {info_der}", border="LRB", ln=True)
+        pdf.cell(0, 5, f"  {info_der}", border="LRB")
+        pdf.ln(5)
         
         pdf.set_font("Helvetica", "I", 7.5)
         gastos_txt = " | ".join([f"{k}: $ {v:.2f}" for k, v in p["gastos"].items()])
-        pdf.cell(0, 5, f"  Gastos Asignados: {gastos_txt}", border="LRB", ln=True)
-        pdf.ln(3)
+        pdf.cell(0, 5, f"  Gastos Asignados: {gastos_txt}", border="LRB")
+        pdf.ln(8)
         
     pdf.ln(5)
     
@@ -504,24 +510,26 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.set_xy(35, y_ficha)
     pdf.set_font("Helvetica", "B", 9)
     pdf.set_text_color(31, 73, 125)
-    pdf.cell(0, 4, "Diseñado y elaborado por su Asesor de Importación Inteligente:", ln=True)
+    pdf.cell(0, 4, "Diseñado y elaborado por su Asesor de Importación Inteligente:")
+    pdf.ln(4)
     
     pdf.set_x(35)
     pdf.set_font("Helvetica", "B", 10)
     pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 5, "Prof. Jesús Pulido V.", ln=True)
+    pdf.cell(0, 5, "Prof. Jesús Pulido V.")
+    pdf.ln(5)
     
     pdf.set_x(35)
     pdf.set_font("Helvetica", "", 8)
     pdf.set_text_color(80, 80, 80)
-    pdf.cell(0, 4, "Teléfonos de contacto: 0424-728.3199 / 0416-291.6426  |  Correo: jeshua166@gmail.com", ln=True)
+    pdf.cell(0, 4, "Teléfonos de contacto: 0424-728.3199 / 0416-291.6426  |  Correo: jeshua166@gmail.com")
+    pdf.ln(4)
     
     pdf.set_x(35)
-    pdf.cell(0, 4, "Ubicación: Santa Bárbara de Barinas, Venezuela", ln=True)
+    pdf.cell(0, 4, "Ubicación: Santa Bárbara de Barinas, Venezuela")
     
     return bytes(pdf.output())
     
-
 def mostrar_resultado(productos, gastos_contenedor, config):
     st.success("✅ Reporte generado correctamente.")
     
