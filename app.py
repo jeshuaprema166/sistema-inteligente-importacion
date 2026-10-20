@@ -1,6 +1,8 @@
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import pandas as pd
 import streamlit as st
+import io
+from fpdf import FPDF
 
 # --- CONFIGURACIÓN DE SEGURIDAD ---
 def verificar_acceso():
@@ -373,11 +375,94 @@ def validar_gastos(datos_gastos):
             errores.append(str(e))
     return gastos, errores
 
+def generar_pdf(productos, gastos_contenedor, config):
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # --- ENCABEZADO ---
+    pdf.set_font("Helvetica", "B", 14)
+    pdf.cell(0, 10, "REPORTE EJECUTIVO DE IMPORTACIÓN", ln=True, align="C")
+    
+    pdf.set_font("Helvetica", "", 10)
+    pdf.cell(0, 6, f"{config['empresa']}", ln=True, align="C")
+    pdf.cell(0, 6, f"RIF: {config['rif']} | Propietario: {config['propietario']}", ln=True, align="C")
+    pdf.ln(8)
+    
+    # --- TABLA RESUMEN ---
+    pdf.set_font("Helvetica", "B", 9)
+    pdf.set_fill_color(230, 240, 255) # Azul pastel de fondo
+    
+    # Encabezados (Anchos suman 190mm para A4)
+    pdf.cell(55, 8, "Producto", border=1, fill=True)
+    pdf.cell(15, 8, "Cant.", border=1, fill=True, align="C")
+    pdf.cell(25, 8, "Costo U.", border=1, fill=True, align="C")
+    pdf.cell(25, 8, "PVP Norm.", border=1, fill=True, align="C")
+    pdf.cell(35, 8, "Estado Semáforo", border=1, fill=True, align="C")
+    pdf.cell(35, 8, "Pedir (Und)", border=1, fill=True, align="C")
+    pdf.ln()
+    
+    # --- FILAS DE LA TABLA ---
+    pdf.set_font("Helvetica", "", 8)
+    for p in productos:
+        color, mensaje, sugerido = evaluar_semaforo(
+            p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0)
+        )
+        
+        # Traducir el emoji a texto para el PDF
+        if color == "🔴":
+            texto_estado = "ROJO - Pedir YA"
+            pdf.set_text_color(200, 0, 0) # Texto rojo
+        elif color == "🟡":
+            texto_estado = "AMARILLO - Pronto"
+            pdf.set_text_color(200, 150, 0) # Texto amarillo/naranja
+        else:
+            texto_estado = "VERDE - Todo bien"
+            pdf.set_text_color(0, 150, 0) # Texto verde
+            
+        nombre_corto = p['nombre'][:25] # Recortar nombre si es muy largo
+        pdf.cell(55, 7, nombre_corto, border=1)
+        pdf.set_text_color(0, 0, 0) # Volver a negro
+        pdf.cell(15, 7, str(p["cantidad"]), border=1, align="C")
+        pdf.cell(25, 7, f"$ {p['costo_unitario']:.2f}", border=1, align="C")
+        pdf.cell(25, 7, f"$ {p['pvp_normal']}", border=1, align="C")
+        
+        # Imprimir estado con el color que definimos
+        if color == "🔴": pdf.set_text_color(200, 0, 0)
+        elif color == "🟡": pdf.set_text_color(200, 150, 0)
+        else: pdf.set_text_color(0, 150, 0)
+        pdf.cell(35, 7, texto_estado, border=1, align="C")
+        
+        pdf.set_text_color(0, 0, 0) # Volver a negro para la última columna
+        pdf.cell(35, 7, str(sugerido), border=1, align="C")
+        pdf.ln()
+
+    # --- PIE DE PÁGINA ---
+    pdf.ln(10)
+    pdf.set_font("Helvetica", "I", 9)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(0, 10, "Generado por su Asesor de Importación - Prof. Jesús Pulido V.", align="C")
+    
+    # Guardar en un buffer de memoria
+    return bytes(pdf.output())
+
 def mostrar_resultado(productos, gastos_contenedor, config):
     reporte = crear_reporte(productos, gastos_contenedor, config)
     st.success("✅ Reporte generado correctamente.")
     st.text_area("Reporte", reporte, height=400)
     st.download_button("📥 Descargar reporte_importacion.txt", data=reporte.encode("utf-8"), file_name="reporte_importacion.txt", mime="text/plain; charset=utf-8", use_container_width=True)
+
+    # Botón para generar y descargar el PDF
+    try:
+        pdf_bytes = generar_pdf(productos, gastos_contenedor, config)
+        st.download_button(
+            label="📄 Descargar Reporte Ejecutivo (PDF)",
+            data=pdf_bytes,
+            file_name="Reporte_Importacion_Mangos.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+    except Exception as e:
+        st.error(f"Error al generar PDF: {e}")
 
 def main():
     st.set_page_config(page_title="Costos de Importación | Los Mangos", page_icon="📋", layout="wide")
