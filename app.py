@@ -490,7 +490,7 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.cell(0, 5, f"  {info_der}", border="LRB")
         pdf.ln(5)
         
-        pdf.set_font("Helvetica", "I", 7.5)
+        pdf.set_font("Helvetica", "I", 6.5)
         gastos_txt = " | ".join([f"{k}: $ {v:.2f}" for k, v in p["gastos"].items()])
         pdf.cell(0, 5, f"  Gastos Asignados: {gastos_txt}", border="LRB")
         pdf.ln(8)
