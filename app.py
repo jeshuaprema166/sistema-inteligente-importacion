@@ -15,7 +15,7 @@ def verificar_acceso():
     # --- PANTALLA DE BIENVENIDA ---
     # Mostrar la imagen de portada corporativa en la parte superior
     st.image("IMG-20261021-WA0005.jpg", use_container_width=True)
-    st.markdown("<h1 style='text-align: center;'>🏢<br>Bienvenido<br>🛳️</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>Bienvenido<br>🛳️</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align: center;'>¿Sabe cuánto le cuesta realmente traer los productos desde el exterior<br> hasta su depósito?<br>Este Sistema Inteligente le revela:</h3>", unsafe_allow_html=True)
     st.markdown("""
     * La verdad sobre sus costos de importación, márgenes de utilidad y precios óptimos de venta.
