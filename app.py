@@ -758,8 +758,8 @@ def mostrar_resultado(productos, gastos_contenedor, config):
     st.markdown("---")
     st.markdown("##### 🚢 Gastos de Arribo Asignados (Prorrateo DUAL por Peso y Volumen):")
             
-            g_col1, g_col2, g_col3 = st.columns(3)
-            gastos_items = list(p["gastos"].items())
+    g_col1, g_col2, g_col3 = st.columns(3)
+    gastos_items = list(p["gastos"].items())
             
             for idx, (nombre_gasto, monto_asig) in enumerate(gastos_items):
                 por_und = monto_asig / p["cantidad"]
