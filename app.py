@@ -734,26 +734,29 @@ def mostrar_resultado(productos, gastos_contenedor, config):
         
         with st.expander(titulo_expander, expanded=(i == 1)):
             
-            c_left, c_right = st.columns(2)
-            
-            with c_left:
-                st.markdown("##### 📌 Datos Físicos y de Origen")
-                st.write(f"• **Cantidad de Unidades:** {p['cantidad']:,} unds")
-                st.write(f"• **Precio China (Unidad):** {formato_dinero(p['precio_china'])}")
-                st.write(f"• **Precio China (Total):** {formato_dinero(p['precio_china'] * p['cantidad'])}")
-                st.write(f"• **Peso Total:** {p['peso_total']:,.3f} kg")
-                st.write(f"• **Volumen Total:** {p['volumen_total']:,.6f} m³")
-
-            with c_right:
-                st.markdown("##### 🏷️ Costo Real y Precios Sugeridos")
-                st.write(f"• **Gastos de Arribo (Unidad):** {formato_dinero(p['gasto_unitario'])}")
-                st.write(f"• **COSTO REAL EN ESTANTE:** **{formato_dinero(p['costo_unitario'])}**")
-                st.write(f"• **PVP Normal:** **$ {p['pvp_normal']:,.2f}**")
-                st.write(f"• **PVP Mayorista:** **$ {p['pvp_mayorista']:,.2f}**")
-                st.write(f"• **PVP Especial:** **$ {p['pvp_especial']:,.2f}**")
+        c_left, c_right = st.columns(2)
+        
+        with c_left:
+            st.markdown("##### 📌 Datos Físicos y de Origen")
+            st.metric(label="Cantidad de Unidades", value=f"{p['cantidad']:,} unds")
+            st.metric(label="Precio en China (Unidad)", value=f"$ {p['precio_china']:,.2f}")
+            st.metric(label="Peso Total", value=f"{p['peso_total']:,.3f} kg")
+            st.metric(label="Volumen Total", value=f"{p['volumen_total']:,.6f} m³")
+        
+        with c_right:
+            st.markdown("##### 🏷️ Costo Real y Precios Sugeridos")
+            st.metric(
+                label="COSTO REAL EN ESTANTE", 
+                value=f"$ {p['costo_unitario']:,.2f}", 
+                delta="Costo de importación (Listo para vender)", 
+                delta_color="off"
+            )
+            st.metric(label="PVP Normal (Sugerido)", value=f"$ {p['pvp_normal']:,.2f}")
+            st.metric(label="PVP Mayorista", value=f"$ {p['pvp_mayorista']:,.2f}")
+            st.metric(label="PVP Especial", value=f"$ {p['pvp_especial']:,.2f}")
                 
-            st.markdown("---")
-            st.markdown("##### 🚢 Gastos de Arribo Asignados (Prorrateo DUAL por Peso y Volumen):")
+    st.markdown("---")
+    st.markdown("##### 🚢 Gastos de Arribo Asignados (Prorrateo DUAL por Peso y Volumen):")
             
             g_col1, g_col2, g_col3 = st.columns(3)
             gastos_items = list(p["gastos"].items())
