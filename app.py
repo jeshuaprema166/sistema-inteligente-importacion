@@ -230,6 +230,7 @@ def crear_reporte(productos, gastos_contenedor, config):
             f"      PVP Mayorista:                $ {producto['pvp_mayorista']:>12,.0f}",
             f"      PVP Especial:                 $ {producto['pvp_especial']:>12,.0f}",
         ])
+       
         # --- BLOQUE DEL SEMÁFORO EN EL TEXTO ---
         color, mensaje, sugerido = evaluar_semaforo(
             producto.get("stock_actual", 0), 
@@ -241,7 +242,17 @@ def crear_reporte(productos, gastos_contenedor, config):
             f"   Unidades sugeridas a pedir: {sugerido}",
             "-" * 72
         ])
-    
+
+        # --- BLOQUE DE CARGA PESADA EN EL TEXTO ---
+        color_carga, mensaje_carga, _ = evaluar_carga_pesada(
+            producto["precio_china"], 
+            producto["gasto_unitario"]
+        )
+        lineas.extend([
+            f"   EVALUACIÓN DE CARGA: {color_carga} {mensaje_carga}",
+            "----------------------------------------"
+        ])
+            
     cantidad_total = sum(p["cantidad"] for p in productos)
     pvp_normal_total = sum((p["pvp_normal"] * p["cantidad"] for p in productos), CERO)
     pvp_mayorista_total = sum((p["pvp_mayorista"] * p["cantidad"] for p in productos), CERO)
