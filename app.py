@@ -152,7 +152,21 @@ def evaluar_semaforo(stock_actual, ventas_semanales, dias_entrega):
         sugerido = 0
         
     return color, mensaje, int(sugerido)
+
+def evaluar_carga_pesada(precio_china, gasto_arribo_unitario):
+    if precio_china <= 0:
+        return "⚪", "Sin datos", 0
     
+    # Calcular qué porcentaje del precio es el flete
+    porcentaje_flete = (gasto_arribo_unitario / precio_china) * 100
+    
+    if porcentaje_flete > 60:
+        return "🔴", f"PELIGRO: Flete = {porcentaje_flete:.1f}% del costo. Traer local.", porcentaje_flete
+    elif porcentaje_flete >= 30:
+        return "🟡", f"CUIDADO: Flete = {porcentaje_flete:.1f}% del costo. Evalúe margen.", porcentaje_flete
+    else:
+        return "🟢", f"RENTABLE: Flete = {porcentaje_flete:.1f}% del costo.", porcentaje_flete
+
 def calcular_costos(productos, gastos_ingresados, config):
     margen = Decimal(str(config["margen"])) / Decimal("100")
     desc_mayorista = Decimal(str(config["desc_mayorista"])) / Decimal("100")
