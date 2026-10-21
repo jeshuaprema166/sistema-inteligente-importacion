@@ -761,15 +761,15 @@ def mostrar_resultado(productos, gastos_contenedor, config):
     g_col1, g_col2, g_col3 = st.columns(3)
     gastos_items = list(p["gastos"].items())
             
-            for idx, (nombre_gasto, monto_asig) in enumerate(gastos_items):
-                por_und = monto_asig / p["cantidad"]
-                col_target = g_col1 if idx % 3 == 0 else (g_col2 if idx % 3 == 1 else g_col3)
-                col_target.metric(
-                    label=nombre_gasto, 
-                    value=formato_dinero(monto_asig), 
-                    delta=f"{formato_dinero(por_und)} /und",
-                    delta_color="off"
-                )
+    for idx, (nombre_gasto, monto_asig) in enumerate(gastos_items):
+        por_und = monto_asig / p["cantidad"]
+        col_target = g_col1 if idx % 3 == 0 else (g_col2 if idx % 3 == 1 else g_col3)
+        col_target.metric(
+            label=nombre_gasto, 
+            value=formato_dinero(monto_asig), 
+            delta=f"{formato_dinero(por_und)} /und",
+            delta_color="off"
+        )
             # --- BLOQUE DEL SEMÁFORO EN PANTALLA ---
             if color == "🔴":
                 st.error(f"🚨 **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades de inmediato.")
