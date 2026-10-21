@@ -765,21 +765,27 @@ def mostrar_resultado(productos, gastos_contenedor, config):
                     delta=f"{formato_dinero(por_und)} /und",
                     delta_color="off"
                 )
-                
-            st.markdown("")
-            
+            # --- BLOQUE DEL SEMÁFORO EN PANTALLA ---
             if color == "🔴":
                 st.error(f"🚨 **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades de inmediato.")
             elif color == "🟡":
                 st.warning(f"⚠️ **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades próximamente.")
             else:
                 st.success(f"🟢 **Estado de Inventario:** {mensaje}. No requiere reposición por el momento.")
+            
+            # --- EVALUACIÓN DE CARGA PESADA (ANEXO C) ---
+            color_carga, mensaje_carga, _ = evaluar_carga_pesada(p["precio_china"], p["gasto_unitario"])
+            if "🔴" in color_carga:
+                st.error(f"⚖️ **Análisis de Carga Pesada:** {mensaje_carga}")
+            elif "🟡" in color_carga:
+                st.warning(f"⚖️ **Análisis de Carga Pesada:** {mensaje_carga}")
+            else:
+                st.success(f"⚖️ **Análisis de Carga Pesada:** {mensaje_carga}")
 
     st.markdown("---")
-
+    
     # 5.5. FICHA DEL ASESOR DE IMPORTACIÓN
     col_foto, col_datos = st.columns([1, 4])
-    
     with col_foto:
         if os.path.exists("profesor.jpg"):
             st.image("profesor.jpg", width=110)
