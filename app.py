@@ -836,8 +836,8 @@ for i, p in enumerate(productos, start=1):
 
 st.markdown("---") # <--- Esta línea separa los productos de la Ficha del Asesor
     
-    # 5.5. FICHA DEL ASESOR DE IMPORTACIÓN
-    col_foto, col_datos = st.columns([1, 4])
+# 5.5. FICHA DEL ASESOR DE IMPORTACIÓN
+col_foto, col_datos = st.columns([1, 4])
     with col_foto:
         if os.path.exists("profesor.jpg"):
             st.image("profesor.jpg", width=110)
