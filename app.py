@@ -813,10 +813,9 @@ def mostrar_resultado(productos, gastos_contenedor, config):
             delta_color="off"
         )
         # --- BLOQUE DEL SEMÁFORO EN PANTALLA ---
-    
         if color == "🔴":
             st.error(f"🚨 **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades de inmediato.")
-            elif color == "🟡":
+        elif color == "🟡":
             st.warning(f"⚠️ **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades próximamente.")
         else:
             st.success(f"🟢 **Estado de Inventario:** {mensaje}. No requiere reposición por el momento.")
