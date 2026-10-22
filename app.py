@@ -844,7 +844,7 @@ with col_foto:
         else:
             st.markdown("📸 **Prof. Jesús Pulido V.**")
             
-    with col_datos:
+with col_datos:
         st.markdown("""
         <div style='background-color: #f0f4f8; padding: 12px; border-radius: 8px; border-left: 4px solid #1f497d;'>
             <h5 style='color: #1f497d; margin:0;'>Diseñado y elaborado por su Asesor de Importación Inteligente</h5>
