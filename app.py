@@ -767,60 +767,63 @@ def mostrar_resultado(productos, gastos_contenedor, config):
     # 5. DESGLOSE DETALLADO POR PRODUCTO (ACORDEONES / EXPANDERS)
     st.markdown("<h4 style='color: #1f497d;'>🔍 Desglose Individual y Prorrateo de Gastos</h4>", unsafe_allow_html=True)
 
-    for i, p in enumerate(productos, start=1):
-        color, mensaje, sugerido = evaluar_semaforo(
-            p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0)
-        )
+for i, p in enumerate(productos, start=1):
+    # 1. Cálculos previos para el acordeón
+    color, mensaje, sugerido = evaluar_semaforo(
+        p.get("stock_actual", 0), 
+        p.get("ventas_semanales", 0), 
+        p.get("dias_entrega", 0)
+    )
+    
+    titulo_expander = f"📦 {p['nombre']} | {color} {mensaje} (Pedir: {sugerido} unds)"
+    
+    # 2. AQUÍ SE ABRE EL ACORDEÓN
+    with st.expander(titulo_expander, expanded=(i == 1)):
         
-        titulo_expander = f"📦 {p['nombre']}  |  {color} {mensaje} (Pedir: {sugerido} unds)"
+        # 3. MÉTRICAS (Datos Físicos y Precios)
+        c_left, c_right = st.columns(2)
+        with c_left:
+            st.markdown("##### 📌 Datos Físicos y de Origen")
+            st.metric(label="Cantidad de Unidades", value=f"{p['cantidad']:,} unds")
+            st.metric(label="Precio Origen (Unidad)", value=f"$ {p['precio_china']:,.2f}")
+            st.metric(label="Peso Total", value=f"{p['peso_total']:,.3f} kg")
+            st.metric(label="Volumen Total", value=f"{p['volumen_total']:,.6f} m³")
+
+        with c_right:
+            st.markdown("##### 🏷️ Costo Real y Precios Sugeridos")
+            st.metric(label="COSTO REAL EN ESTANTE", value=f"$ {p['costo_unitario']:,.2f}", delta="Listo para vender", delta_color="off")
+            st.metric(label="PVP Normal (Sugerido)", value=f"$ {p['pvp_normal']:,.2f}")
+            st.metric(label="PVP Mayorista", value=f"$ {p['pvp_mayorista']:,.2f}")
+            st.metric(label="PVP Especial", value=f"$ {p['pvp_especial']:,.2f}")
         
-        with st.expander(titulo_expander, expanded=(i == 1)):
+        st.markdown("---")
+        
+        # 4. GASTOS DE ARRIBO (Prorrateo)
+        st.markdown("##### 🚢 Gastos de Arribo Asignados (Prorrateo DUAL):")
+        g_col1, g_col2, g_col3 = st.columns(3)
+        gastos_items = list(p["gastos"].items())
+        
+        for idx, (nombre_gasto, monto_asig) in enumerate(gastos_items):
+            por_und = monto_asig / p["cantidad"]
+            col_target = g_col1 if idx % 3 == 0 else (g_col2 if idx % 3 == 1 else g_col3)
+            col_target.metric(
+                label=nombre_gasto, 
+                value=formato_dinero(monto_asig), 
+                delta=f"{formato_dinero(por_und)} /und",
+                delta_color="off"
+            )
             
-            c_left, c_right = st.columns(2)
-            
-            with c_left:
-                st.markdown("##### 📌 Datos Físicos y de Origen")
-                st.metric(label="Cantidad de Unidades", value=f"{p['cantidad']:,} unds")
-                st.metric(label="Precio en China (Unidad)", value=f"$ {p['precio_china']:,.2f}")
-                st.metric(label="Peso Total", value=f"{p['peso_total']:,.3f} kg")
-                st.metric(label="Volumen Total", value=f"{p['volumen_total']:,.6f} m³")
-            
-            with c_right:
-                st.markdown("##### 🏷️ Costo Real y Precios Sugeridos")
-                st.metric(
-                    label="COSTO REAL EN ESTANTE", 
-                    value=f"$ {p['costo_unitario']:,.2f}", 
-                    delta="Costo de importación (Listo para vender)", 
-                    delta_color="off"
-                )
-                st.metric(label="PVP Normal (Sugerido)", value=f"$ {p['pvp_normal']:,.2f}")
-                st.metric(label="PVP Mayorista", value=f"$ {p['pvp_mayorista']:,.2f}")
-                st.metric(label="PVP Especial", value=f"$ {p['pvp_especial']:,.2f}")
-                
-    st.markdown("---")
-    st.markdown("##### 🚢 Gastos de Arribo Asignados (Prorrateo DUAL por Peso y Volumen):")
-            
-    g_col1, g_col2, g_col3 = st.columns(3)
-    gastos_items = list(p["gastos"].items())
-            
-    for idx, (nombre_gasto, monto_asig) in enumerate(gastos_items):
-        por_und = monto_asig / p["cantidad"]
-        col_target = g_col1 if idx % 3 == 0 else (g_col2 if idx % 3 == 1 else g_col3)
-        col_target.metric(
-            label=nombre_gasto, 
-            value=formato_dinero(monto_asig), 
-            delta=f"{formato_dinero(por_und)} /und",
-            delta_color="off"
-        )
-        # --- BLOQUE DEL SEMÁFORO EN PANTALLA ---
+        st.markdown("---")
+        
+        # 5. ALERTAS DEL SEMÁFORO
         if color == "🔴":
             st.error(f"🚨 **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades de inmediato.")
         elif color == "🟡":
             st.warning(f"⚠️ **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades próximamente.")
         else:
             st.success(f"🟢 **Estado de Inventario:** {mensaje}. No requiere reposición por el momento.")
-                    
-        # --- EVALUACIÓN DE CARGA PESADA (ANEXO C) ---
+        
+        # 6. ALERTAS DE CARGA PESADA (ANEXO C)
         color_carga, mensaje_carga, _ = evaluar_carga_pesada(p["precio_china"], p["gasto_unitario"])
         if "🔴" in color_carga:
             st.error(f"⚖️ **Análisis de Carga Pesada:** {mensaje_carga}")
@@ -828,8 +831,10 @@ def mostrar_resultado(productos, gastos_contenedor, config):
             st.warning(f"⚖️ **Análisis de Carga Pesada:** {mensaje_carga}")
         else:
             st.success(f"⚖️ **Análisis de Carga Pesada:** {mensaje_carga}")
+        
+    # AQUÍ SE CIERRA EL ACORDEÓN (Volvemos a la sangría del for)
 
-    st.markdown("---")
+st.markdown("---") # <--- Esta línea separa los productos de la Ficha del Asesor
     
     # 5.5. FICHA DEL ASESOR DE IMPORTACIÓN
     col_foto, col_datos = st.columns([1, 4])
