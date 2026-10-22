@@ -156,19 +156,29 @@ def evaluar_semaforo(stock_actual, ventas_semanales, dias_entrega):
         
     return color, mensaje, int(sugerido)
 
-def evaluar_carga_pesada(precio_china, gasto_arribo_unitario):
+def evaluar_carga_pesada(p):
+    precio_china = p.get("precio_china", 0)
+    cantidad = p.get("cantidad", 1)
+    if cantidad <= 0:
+        cantidad = 1
+        
+    # Calculamos el gasto de arribo unitario sumando los gastos del producto y dividiendo entre la cantidad
+    gastos_totales_item = sum(p.get("gastos", {}).values())
+    gasto_arribo_unitario = gastos_totales_item / cantidad
+
     if precio_china <= 0:
         return "⚪", "Sin datos", 0
-    
+
     # Calcular qué porcentaje del precio es el flete
     porcentaje_flete = (gasto_arribo_unitario / precio_china) * 100
-    
+
     if porcentaje_flete > 60:
-        return "🔴", f"PELIGRO: Flete = {porcentaje_flete:.1f}% del costo. Traer local.", porcentaje_flete
+        return "🔴", f"PELIGRO: Flete = {porcentaje_flete:.1f}% del costo.", 0
     elif porcentaje_flete >= 30:
-        return "🟡", f"CUIDADO: Flete = {porcentaje_flete:.1f}% del costo. Evalúe margen.", porcentaje_flete
+        return "🟡", f"CUIDADO: Flete = {porcentaje_flete:.1f}% del costo.", 0
     else:
-        return "🟢", f"RENTABLE: Flete = {porcentaje_flete:.1f}% del costo.", porcentaje_flete
+        return "🟢", f"RENTABLE: Flete = {porcentaje_flete:.1f}% del costo.", 0
+        
 
 def calcular_costos(productos, gastos_ingresados, config):
     margen = Decimal(str(config["margen"])) / Decimal("100")
