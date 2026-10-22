@@ -715,13 +715,13 @@ def mostrar_resultado(productos, gastos_contenedor, config):
     st.markdown("---")
 
     # 5. DESGLOSE DETALLADO POR PRODUCTO (ACORDEONES / EXPANDERS)
-    st.markdown("<h4 style='color: #1f497d;'>🔍 Desglose Individual y Prorrateo de Gastos</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 style='color: #1f497d;'>🔍 Desglose Individual y Prorrateo</h4>", unsafe_allow_html=True)
 
     for i, p in enumerate(productos, start=1):
         # 1. Cálculos previos para el acordeón
         color, mensaje, sugerido = evaluar_semaforo(
-            p.get("stock_actual", 0), 
-            p.get("ventas_semanales", 0), 
+            p.get("stock_actual", 0),
+            p.get("ventas_semanales", 0),
             p.get("dias_entrega", 0)
         )
         
@@ -735,21 +735,21 @@ def mostrar_resultado(productos, gastos_contenedor, config):
             with c_left:
                 st.markdown("##### 📌 Datos Físicos y de Origen")
                 st.metric(label="Cantidad de Unidades", value=f"{p['cantidad']:,} unds")
-                st.metric(label="Precio Origen (Unidad)", value=f"$ {p['precio_china']:,.2f}")
-                st.metric(label="Peso Total", value=f"{p['peso_total']:,.3f} kg")
-                st.metric(label="Volumen Total", value=f"{p['volumen_total']:,.6f} m³")
-    
+                st.metric(label="Precio Origen (Unidad)", value=f"$ {p['precio_china']:.2f}")
+                st.metric(label="Peso Total", value=f"{p['peso_total']:.2f} kg")
+                st.metric(label="Volumen Total", value=f"{p['volumen_total']:.3f} m³")
+                
             with c_right:
                 st.markdown("##### 🏷️ Costo Real y Precios Sugeridos")
-                st.metric(label="COSTO REAL EN ESTANTE", value=f"$ {p['costo_unitario']:,.2f}", delta="Listo para vender", delta_color="off")
-                st.metric(label="PVP Normal (Sugerido)", value=f"$ {p['pvp_normal']:,.2f}")
-                st.metric(label="PVP Mayorista", value=f"$ {p['pvp_mayorista']:,.2f}")
-                st.metric(label="PVP Especial", value=f"$ {p['pvp_especial']:,.2f}")
-            
+                st.metric(label="COSTO REAL EN ESTANTE", value=f"$ {p['costo_unitario']:.2f}", delta=f"FOB: $ {p['precio_china']:.2f}", delta_color="off")
+                st.metric(label="PVP Normal (Sugerido)", value=f"$ {p['pvp_normal']:.2f}")
+                st.metric(label="PVP Mayorista", value=f"$ {p['pvp_mayorista']:.2f}")
+                st.metric(label="PVP Especial", value=f"$ {p['pvp_especial']:.2f}")
+
             st.markdown("---")
-            
+
             # 4. GASTOS DE ARRIBO (Prorrateo)
-            st.markdown("##### 🚢 Gastos de Arribo Asignados (Prorrateo DUAL):")
+            st.markdown("##### 🚢 Gastos de Arribo Asignados (Prorrateo)")
             g_col1, g_col2, g_col3 = st.columns(3)
             gastos_items = list(p["gastos"].items())
             
@@ -757,65 +757,62 @@ def mostrar_resultado(productos, gastos_contenedor, config):
                 por_und = monto_asig / p["cantidad"]
                 col_target = g_col1 if idx % 3 == 0 else (g_col2 if idx % 3 == 1 else g_col3)
                 col_target.metric(
-                    label=nombre_gasto, 
-                    value=formato_dinero(monto_asig), 
+                    label=nombre_gasto,
+                    value=formato_dinero(monto_asig),
                     delta=f"{formato_dinero(por_und)} /und",
                     delta_color="off"
                 )
-                
+
             st.markdown("---")
-            
+
             # 5. ALERTAS DEL SEMÁFORO
             if color == "🔴":
-                st.error(f"🚨 **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades de inmediato.")
+                st.error(f"🚨 **Alerta de Reposición (IA):** {mensaje}")
             elif color == "🟡":
-                st.warning(f"⚠️ **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades próximamente.")
+                st.warning(f"⚠️ **Alerta de Reposición (IA):** {mensaje}")
             else:
-                st.success(f"🟢 **Estado de Inventario:** {mensaje}. No requiere reposición por el momento.")
-            
+                st.success(f"🟢 **Estado de Inventario:** {mensaje}")
+
             # 6. ALERTAS DE CARGA PESADA (ANEXO C)
-            color_carga, mensaje_carga, _ = evaluar_carga_pesada(p["precio_china"], p["gasto_unitario"])
+            color_carga, mensaje_carga, _ = evaluar_carga_pesada(p)
             if "🔴" in color_carga:
                 st.error(f"⚖️ **Análisis de Carga Pesada:** {mensaje_carga}")
             elif "🟡" in color_carga:
                 st.warning(f"⚖️ **Análisis de Carga Pesada:** {mensaje_carga}")
             else:
                 st.success(f"⚖️ **Análisis de Carga Pesada:** {mensaje_carga}")
-        
-    # AQUÍ SE CIERRA EL ACORDEÓN (Volvemos a la sangría del for)
 
-st.markdown("---") # <--- Esta línea separa los productos de la Ficha del Asesor
-    
-# 5.5. FICHA DEL ASESOR DE IMPORTACIÓN
-col_foto, col_datos = st.columns([1, 4])
-with col_foto:
+    st.markdown("---")
+
+    # 5.5. FICHA DEL ASESOR DE IMPORTACIÓN
+    col_foto, col_datos = st.columns([1, 4])
+    with col_foto:
         if os.path.exists("profesor.jpg"):
             st.image("profesor.jpg", width=110)
         else:
             st.markdown("📸 **Prof. Jesús Pulido V.**")
-            
-with col_datos:
+
+    with col_datos:
         st.markdown("""
-        <div style='background-color: #f0f4f8; padding: 12px; border-radius: 8px; border-left: 4px solid #1f497d;'>
-            <h5 style='color: #1f497d; margin:0;'>Diseñado y elaborado por su Asesor de Importación Inteligente</h5>
-            <h4 style='color: #111111; margin:4px 0;'>Prof. Jesús Pulido V.</h4>
-            <p style='margin:2px 0; font-size:0.85rem; color:#444;'>📞 <b>Teléfonos de contacto:</b> 0424-728.3199 / 0416-291.6426</p>
-            <p style='margin:2px 0; font-size:0.85rem; color:#444;'>✉️ <b>Correo:</b> jeshua166@gmail.com</p>
-            <p style='margin:2px 0; font-size:0.85rem; color:#666;'>📍 <b>Ubicación:</b> Santa Bárbara de Barinas, Venezuela</p>
+        <div style='background-color: #f0f4f8; padding: 12px; border-radius: 6px; border-left: 4px solid #1f497d;'>
+        <h5 style='color: #1f497d; margin:0;'>Diseñado y elaborado por su Asesor de Importación Inteligente</h5>
+        <h4 style='color: #111111; margin:4px 0;'>Prof. Jesús Pulido V.</h4>
+        <p style='margin:2px 0; font-size:0.85rem; color:#444;'>📞 Teléfonos de contacto: 0424-728.3199 / 0416-291.6426</p>
+        <p style='margin:2px 0; font-size:0.85rem; color:#444;'>✉️ Correo: jeshua166@gmail.com</p>
+        <p style='margin:2px 0; font-size:0.85rem; color:#666;'>📍 Ubicación: Santa Bárbara de Barinas, Venezuela</p>
         </div>
         """, unsafe_allow_html=True)
-        
-st.markdown("")
+
+    st.markdown("")
 
     # 6. ACCIONES Y DESCARGAS
     col_btn1, col_btn2 = st.columns(2)
-    
     with col_btn1:
         reporte_texto = crear_reporte(productos, gastos_contenedor, config)
         st.download_button(
-            label="📄 Descargar Reporte en Texto (.txt)",
+            label="📥 Descargar Reporte en Texto (.txt)",
             data=reporte_texto,
-            file_name=f"Reporte_Importacion_{config['empresa'].replace(' ', '_')}.txt",
+            file_name=f"Reporte_Importacion_{config['empresa']}.txt",
             mime="text/plain",
             use_container_width=True
         )
