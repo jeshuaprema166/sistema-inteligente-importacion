@@ -18,12 +18,12 @@ def verificar_acceso():
     st.markdown("<h1 style='text-align: center;'>Bienvenidos<br>🛳️</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align: center;'>¿Sabe cuánto le cuesta realmente traer los productos desde el exterior<br> hasta su depósito?<br>Este Sistema Inteligente le revela:</h3>", unsafe_allow_html=True)
     st.markdown("""
-    * La verdad sobre sus costos de importación, márgenes de utilidad y precios óptimos de venta.
-    * Identificar los márgenes reales de ganancia antes de nacionalizar, analizando la rentabilidad neta por producto prorrateando con precisión los costos según peso (kg) y volumen (m³). Así sabrá qué productos le dejan ganancia real y cuáles no.
-    * Optimizar el espacio de su contenedor y evite pérdidas por costos ocultos.
-    * Alarmas de reposición de inventario 🟢🟡🔴 por IA, que permiten monitorear el comportamiento de las existencias, previniendo el desabastecimiento o sobrecompra, que redunda en estancamiento del Capital económico.
-    * Ingresar de forma **automática** de **TODOS** los datos y detalles del Excel de sus artículos del inventario al Sistema de Análisis Inteligente de Importación.
-    * Definir fácilmente y con certeza a qué proveedor del exterior debe comprar, o si es mejor hacerlo localmente. 
+    * **La verdad** sobre sus costos de importación, márgenes de utilidad y precios óptimos de venta.
+    * **Identificar** los márgenes reales de ganancia antes de nacionalizar, analizando la rentabilidad neta por producto prorrateando con precisión los costos según peso (kg) y volumen (m³). Así sabrá qué productos le dejan ganancia real y cuáles no.
+    * **Optimizar** el espacio de su contenedor y evite pérdidas por costos ocultos.
+    * **Alarmas** de reposición de inventario 🟢🟡🔴 por IA, que permiten monitorear el comportamiento de las existencias, previniendo el desabastecimiento o sobrecompra, que redunda en estancamiento del Capital económico.
+    * **Ingresar** de forma **automática** de **TODOS** los datos y detalles del Excel de sus artículos del inventario al Sistema de Análisis Inteligente de Importación.
+    * **Definir fácilmente** y con certeza a qué proveedor del exterior debe comprar, o si es mejor hacerlo localmente. 
     <mark><span style="font-size: 1.0em; white-space: nowrap;">**✨ Todo eso y más, con la ayuda de nuestro Sistema de Importación con IA 🤖 ✨**</span></mark>
     """, unsafe_allow_html=True)
     
