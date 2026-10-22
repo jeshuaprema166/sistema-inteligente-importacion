@@ -439,6 +439,7 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.set_font("Helvetica", "B", 11)  # Un punto más alto y en negrita
     pdf.set_text_color(50, 50, 50)
     pdf.cell(0, 6, f"{config['empresa']}  |  RIF: {config['rif']}  |  Propietario: {config['propietario']}", align="C")
+    
     # Datos de Origen en el PDF
     pdf.set_font("Helvetica", "", 9)
     pdf.set_text_color(100, 100, 100)
@@ -686,13 +687,20 @@ def mostrar_resultado(productos, gastos_contenedor, config):
     # 2. ENCABEZADO CORPORATIVO
     st.markdown("<h2 style='text-align: center; color: #1f497d;'>📊 REPORTE EJECUTIVO DE IMPORTACIÓN</h2>", unsafe_allow_html=True)
     st.markdown(f"<p style='text-align: center; color: #666666; font-size: 1.05rem;'><b>{config['empresa']}</b> | RIF: {config['rif']} | Propietario: {config['propietario']}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align: left; color: #555555; font-size: 0.9rem;'><b>Origen:</b> {config.get('origen', 'N/A')} | <b>Proveedor:</b> {config.get('proveedor', 'N/A')} | <b>Factura N°:</b> {config.get('factura', 'N/A')}</p>", unsafe_allow_html=True)
+    st.markdown(
+        f"<p style='text-align: left; color: #555555; font-size: 0.9rem; line-height: 1.6;'>"
+        f"<b>Origen:</b> {config.get('origen', 'N/A')}<br>"
+        f"<b>Proveedor:</b> {config.get('proveedor', 'N/A')}<br>"
+        f"<b>Factura N°:</b> {config.get('factura', 'N/A')}"
+        f"</p>", 
+        unsafe_allow_html=True
+    )
     st.markdown("")
 
     # 3. TARJETAS MÉTRICAS EJECUTIVAS SUPERIORES (KPIs)
     total_unidades = sum(p["cantidad"] for p in productos)
     gasto_total_contenedor = sum(sum(p["gastos"].values()) for p in productos)
-    costo_total_fob = sum(p["precio_china"] * p["cantidad"] for p in productos)
+    costo_total_fob = sum(p["precio_china"] * p["cantidad"] for p in productos) 
 
     col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4)
 
