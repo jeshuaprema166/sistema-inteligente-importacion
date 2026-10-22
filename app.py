@@ -283,23 +283,42 @@ def inicializar_estado():
         st.session_state.config_empresa = dict(DEFAULTS)
 
 def panel_configuracion():
-    st.sidebar.header("⚙️ Configuración de Empresa")
-    editar = st.sidebar.checkbox("Modificar datos de la empresa y márgenes", value=False)
+    st.sidebar.header("⚙️ Configuración de Empresa y Origen")
+    editar = st.sidebar.checkbox("Modificar datos de la empresa, proveedor y márgenes", value=False)
     config = st.session_state.config_empresa.copy()
 
     if editar:
         config["empresa"] = st.sidebar.text_input("Nombre de la empresa", value=config["empresa"])
         config["rif"] = st.sidebar.text_input("RIF", value=config["rif"])
         config["propietario"] = st.sidebar.text_input("Propietario", value=config["propietario"])
-        config["origen"] = st.sidebar.text_input("Origen (País)", value=config.get("origen", ""))
-        config["proveedor"] = st.sidebar.text_input("Proveedor", value=config.get("proveedor", ""))
-        config["factura"] = st.sidebar.text_input("Nro. de Factura", value=config.get("factura", ""))
         config["margen"] = st.sidebar.number_input("Margen normal (%)", min_value=0.0, max_value=99.0, value=float(config["margen"]), step=0.5)
         config["desc_mayorista"] = st.sidebar.number_input("Descuento mayorista (%)", min_value=0.0, max_value=99.0, value=float(config["desc_mayorista"]), step=0.5)
         config["desc_especial"] = st.sidebar.number_input("Descuento especial (%)", min_value=0.0, max_value=99.0, value=float(config["desc_especial"]), step=0.5)
-        st.session_state.config_empresa = config
     else:
-        st.sidebar.info(f"**{config['empresa']}**\n\nRIF: {config['rif']}\n\nMargen: {config['margen']}% · Mayorista: {config['desc_mayorista']}% · Especial: {config['desc_especial']}%")
+        # El recuadro azul con la info completa (Empresa + Origen)
+        info_texto = (
+            f"**{config['empresa']}**\n\n"
+            f"RIF: {config['rif']}\n\n"
+            f"**--- Datos del Origen ---**\n\n"
+            f"Origen: {config.get('origen', 'No definido')}\n\n"
+            f"Proveedor: {config.get('proveedor', 'No definido')}\n\n"
+            f"Factura N°: {config.get('factura', 'No definido')}\n\n"
+            f"**--- Márgenes ---**\n\n"
+            f"Normal: {config['margen']}% · "
+            f"Mayorista: {config['desc_mayorista']}% · "
+            f"Especial: {config['desc_especial']}%"
+        )
+        st.sidebar.info(info_texto)
+
+    # --- CAMPOS DE ORIGEN (SIEMPRE VISIBLES) ---
+    st.sidebar.markdown("### 🌍 Datos de Origen")
+    config["origen"] = st.sidebar.text_input("Origen (País)", value=config.get("origen", ""))
+    config["proveedor"] = st.sidebar.text_input("Proveedor", value=config.get("proveedor", ""))
+    config["factura"] = st.sidebar.text_input("Nro. de Factura", value=config.get("factura", ""))
+    
+    # Guardar cambios en el estado de la sesión para que no se borren
+    st.session_state.config_empresa = config
+
     return config
 
 def leer_excel(archivo):
