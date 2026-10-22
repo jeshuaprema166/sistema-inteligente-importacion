@@ -291,6 +291,9 @@ def panel_configuracion():
         config["empresa"] = st.sidebar.text_input("Nombre de la empresa", value=config["empresa"])
         config["rif"] = st.sidebar.text_input("RIF", value=config["rif"])
         config["propietario"] = st.sidebar.text_input("Propietario", value=config["propietario"])
+    config["origen"] = st.sidebar.text_input("Origen (País)", value=config.get("origen", ""))
+    config["proveedor"] = st.sidebar.text_input("Proveedor", value=config.get("proveedor", ""))
+    config["factura"] = st.sidebar.text_input("Nro. de Factura", value=config.get("factura", ""))
         config["margen"] = st.sidebar.number_input("Margen normal (%)", min_value=0.0, max_value=99.0, value=float(config["margen"]), step=0.5)
         config["desc_mayorista"] = st.sidebar.number_input("Descuento mayorista (%)", min_value=0.0, max_value=99.0, value=float(config["desc_mayorista"]), step=0.5)
         config["desc_especial"] = st.sidebar.number_input("Descuento especial (%)", min_value=0.0, max_value=99.0, value=float(config["desc_especial"]), step=0.5)
@@ -657,6 +660,7 @@ def mostrar_resultado(productos, gastos_contenedor, config):
     # 2. ENCABEZADO CORPORATIVO
     st.markdown("<h2 style='text-align: center; color: #1f497d;'>📊 REPORTE EJECUTIVO DE IMPORTACIÓN</h2>", unsafe_allow_html=True)
     st.markdown(f"<p style='text-align: center; color: #666666; font-size: 1.05rem;'><b>{config['empresa']}</b> | RIF: {config['rif']} | Propietario: {config['propietario']}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align: left; color: #555555; font-size: 0.9rem;'><b>Origen:</b> {config.get('origen', 'N/A')} | <b>Proveedor:</b> {config.get('proveedor', 'N/A')} | <b>Factura N°:</b> {config.get('factura', 'N/A')}</p>", unsafe_allow_html=True)
     st.markdown("")
 
     # 3. TARJETAS MÉTRICAS EJECUTIVAS SUPERIORES (KPIs)
