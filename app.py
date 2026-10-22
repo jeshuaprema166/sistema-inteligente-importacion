@@ -22,7 +22,7 @@ def verificar_acceso():
     * Identifica los márgenes reales de ganancia antes de nacionalizar, analizando la rentabilidad neta por producto prorrateando con precisión los costos según peso (kg) y volumen (m³). Así sabrá qué productos le dejan ganancia real y cuáles no.
     * Optimizar el espacio de su contenedor y evite pérdidas por costos ocultos.
     * Alarmas de reposición de inventario 🟢🟡🔴 por IA, que permiten monitorear el comportamiento de las existencias, previniendo el desabastecimiento o sobrecompra, que redunda en estancamiento del Capital económico.
-    * Ingreso de forma **automática** de **TODOS** los datos y detalles del Excel de sus artículos del inventario al Sistema de Análisis Inteligente de Importación.
+    * Ingresar de forma **automática** de **TODOS** los datos y detalles del Excel de sus artículos del inventario al Sistema de Análisis Inteligente de Importación.
     * Definir fácilmente y con certeza a qué proveedor del exterior debe comprar, o si es mejor hacerlo localmente. 
     <mark><span style="font-size: 1.10em; white-space: nowrap;">**✨ Todo con la ayuda de nuestro Sistema de Importación con IA 🤖 ✨**</span></mark>
     """, unsafe_allow_html=True)
