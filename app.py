@@ -440,14 +440,15 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.set_text_color(50, 50, 50)
     pdf.cell(0, 6, f"{config['empresa']}  |  RIF: {config['rif']}  |  Propietario: {config['propietario']}", align="C")
     
-    # Datos de Origen en el PDF (en una sola línea para evitar el solapamiento)
-    pdf.set_font("Helvetica", "", 8)
+    # Datos de Origen en el PDF (limpio y controlado)
+    pdf.set_font("Helvetica", "", 9)
     pdf.set_text_color(100, 100, 100)
-    texto_origen = f"Origen: {config.get('origen', 'N/A')}  |  Proveedor: {config.get('proveedor', 'N/A')}  |  Factura N°: {config.get('factura', 'N/A')}"
-    pdf.cell(0, 6, texto_origen, align="C")
-    pdf.ln(8)
+    prov_corto = str(config.get('proveedor', 'N/A'))[:40]
+    
+    pdf.cell(0, 5, f"Origen: {config.get('origen', 'N/A')}  |  Proveedor: {prov_corto}  |  Factura: {config.get('factura', 'N/A')}", align="C")
+    pdf.ln(12) 
+    
     pdf.set_text_color(50, 50, 50) # Volver al color normal
-    pdf.ln(14)
     
     # --- TARJETAS KPIs SUPERIORES ---
     total_unidades = sum(p["cantidad"] for p in productos)
