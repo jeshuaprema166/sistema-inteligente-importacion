@@ -819,7 +819,7 @@ def mostrar_resultado(productos, gastos_contenedor, config):
             st.warning(f"⚠️ **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sugerido}** unidades próximamente.")
         else:
             st.success(f"🟢 **Estado de Inventario:** {mensaje}. No requiere reposición por el momento.")
-            
+                
         # --- EVALUACIÓN DE CARGA PESADA (ANEXO C) ---
         color_carga, mensaje_carga, _ = evaluar_carga_pesada(p["precio_china"], p["gasto_unitario"])
         if "🔴" in color_carga:
