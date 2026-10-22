@@ -855,7 +855,7 @@ with col_datos:
         </div>
         """, unsafe_allow_html=True)
         
-    st.markdown("")
+st.markdown("")
 
     # 6. ACCIONES Y DESCARGAS
     col_btn1, col_btn2 = st.columns(2)
