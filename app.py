@@ -19,13 +19,14 @@ def verificar_acceso():
     st.markdown("<h3 style='text-align: center;'>¿Sabe cuánto le cuesta realmente traer los productos desde el exterior<br> hasta su depósito?<br>Este Sistema Inteligente le revela:</h3>", unsafe_allow_html=True)
     st.markdown("""
     * La verdad sobre sus costos de importación, márgenes de utilidad y precios óptimos de venta.
-    * Identifique los márgenes reales de ganancia antes de nacionalizar, analizando la rentabilidad neta por producto prorrateando con precisión los costos según peso (kg) y volumen (m³). Así sabrá qué productos le dejan ganancia real y cuáles no.
-    * Optimice el espacio de su contenedor y evite pérdidas por costos ocultos.
-    * Alarmas de reposición de inventario 🟢🟡🔴 por IA.
-    * Ingreso de forma automática de todos los datos y detalles de sus artículos del inventario en Excel al Sistema de Análisis Inteligente.
-    * Defina fácilmente y con certeza a qué proveedor del exterior debe comprar, o si es mejor hacerlo localmente, ✨con ayuda de la IA 🤖✨
-        """)
-        
+    * Identifica los márgenes reales de ganancia antes de nacionalizar, analizando la rentabilidad neta por producto prorrateando con precisión los costos según peso (kg) y volumen (m³). Así sabrá qué productos le dejan ganancia real y cuáles no.
+    * Optimizar el espacio de su contenedor y evite pérdidas por costos ocultos.
+    * Alarmas de reposición de inventario 🟢🟡🔴 por IA, que permiten monitorear el comportamiento de las existencias, previniendo el desabastecimiento o sobrecompra, que redunda en estancamiento del Capital económico.
+    * Ingreso de forma automática de todos los datos y detalles de sus artículos del inventario en Excel al Sistema de Análisis Inteligente de Importación.
+    * Definir fácilmente y con certeza a qué proveedor del exterior debe comprar, o si es mejor hacerlo localmente. 
+    <mark><span style="font-size: 1.15em;">**✨ Todo con la ayuda de nuestro Sistema de Importación con IA 🤖 ✨**</span></mark>
+    """, unsafe_allow_html=True)
+    
     # Texto destacado
     st.markdown("""
     <div style="background-color: #e8f4f8; padding: 15px; border-radius: 5px; text-align: center; border-left: 5px solid #2196F3; margin-top: 20px; margin-bottom: 20px;">
