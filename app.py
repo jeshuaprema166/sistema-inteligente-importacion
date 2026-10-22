@@ -638,56 +638,6 @@ def generar_pdf(productos, gastos_contenedor, config):
 def mostrar_resultado(productos, gastos_contenedor, config):
     st.success("✅ Reporte generado correctamente.")
     
-    # 1. ESTILOS CSS PERSONALIZADOS
-    st.markdown("""
-    <style>
-        .kpi-container {
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 18px;
-            border-left: 5px solid #1f497d;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.04);
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        .kpi-title {
-            font-size: 0.85rem;
-            color: #555555;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-        .kpi-value {
-            font-size: 1.4rem;
-            color: #1f497d;
-            font-weight: 800;
-        }
-        .badge-rojo {
-            background-color: #ffebee;
-            color: #c62828;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-        }
-        .badge-amarillo {
-            background-color: #fffde7;
-            color: #f57f17;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-        }
-        .badge-verde {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.divider()
-
     # 2. ENCABEZADO CORPORATIVO
     st.markdown("<h2 style='text-align: center; color: #1f497d;'>📊 REPORTE EJECUTIVO DE IMPORTACIÓN</h2>", unsafe_allow_html=True)
     st.markdown(f"<p style='text-align: center; color: #666666; font-size: 1.05rem;'><b>{config['empresa']}</b> | RIF: {config['rif']} | Propietario: {config['propietario']}</p>", unsafe_allow_html=True)
@@ -704,7 +654,7 @@ def mostrar_resultado(productos, gastos_contenedor, config):
     # 3. TARJETAS MÉTRICAS EJECUTIVAS SUPERIORES (KPIs)
     total_unidades = sum(p["cantidad"] for p in productos)
     gasto_total_contenedor = sum(sum(p["gastos"].values()) for p in productos)
-    costo_total_fob = sum(p["precio_china"] * p["cantidad"] for p in productos) 
+    costo_total_fob = sum(p["precio_china"] * p["cantidad"] for p in productos)
 
     col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4)
 
