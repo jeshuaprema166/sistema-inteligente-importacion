@@ -807,30 +807,30 @@ with col_datos:
         
 st.markdown("")
 
-# 6. ACCIONES Y DESCARGAS
-col_btn1, col_btn2 = st.columns(2)
-
-with col_btn1:
-    reporte_texto = crear_reporte(productos, gastos_contenedor, config)
-    st.download_button(
-        label="📄 Descargar Reporte en Texto (.txt)",
-        data=reporte_texto,
-        file_name=f"Reporte_Importacion_{config['empresa'].replace(' ', '_')}.txt",
-        mime="text/plain",
-        use_container_width=True
-    )
-with col_btn2:
-    try:
-        pdf_data = generar_pdf(productos, gastos_contenedor, config)
+    # 6. ACCIONES Y DESCARGAS
+    col_btn1, col_btn2 = st.columns(2)
+    
+    with col_btn1:
+        reporte_texto = crear_reporte(productos, gastos_contenedor, config)
         st.download_button(
-            label="📄 Descargar Reporte Ejecutivo (PDF)",
-            data=pdf_data,
-            file_name=f"Reporte_Importacion_{config['empresa']}.pdf",
-            mime="application/pdf",
+            label="📄 Descargar Reporte en Texto (.txt)",
+            data=reporte_texto,
+            file_name=f"Reporte_Importacion_{config['empresa'].replace(' ', '_')}.txt",
+            mime="text/plain",
             use_container_width=True
         )
-    except Exception as e:
-        st.error(f"❌ Error al generar PDF: {str(e)}")
+    with col_btn2:
+        try:
+            pdf_data = generar_pdf(productos, gastos_contenedor, config)
+            st.download_button(
+                label="📄 Descargar Reporte Ejecutivo (PDF)",
+                data=pdf_data,
+                file_name=f"Reporte_Importacion_{config['empresa']}.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
+        except Exception as e:
+            st.error(f"❌ Error al generar PDF: {str(e)}")
 
     
 def main():
