@@ -439,6 +439,13 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.set_font("Helvetica", "B", 11)  # Un punto más alto y en negrita
     pdf.set_text_color(50, 50, 50)
     pdf.cell(0, 6, f"{config['empresa']}  |  RIF: {config['rif']}  |  Propietario: {config['propietario']}", align="C")
+    # Datos de Origen en el PDF
+    pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(100, 100, 100)
+    texto_origen = f"Origen: {config.get('origen', 'N/A')}  |  Proveedor: {config.get('proveedor', 'N/A')}  |  Factura N°: {config.get('factura', 'N/A')}"
+    pdf.cell(0, 6, texto_origen, align="C")
+    pdf.ln(8)
+    pdf.set_text_color(50, 50, 50) # Volver al color normal
     pdf.ln(14)
     
     # --- TARJETAS KPIs SUPERIORES ---
