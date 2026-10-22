@@ -34,7 +34,7 @@ def verificar_acceso():
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("**Instrucciones:**")
+    st.markdown("<span style="font-size: 1.5em; white-space: nowrap;">**Instrucciones:**</span>", unsafe_allow_htlm=True)
     st.markdown("1. Una vez dentro, vaya al menú de la izquierda (⏪) para configurar los datos de su empresa: Razón Social (Nombre), RIF y Propietario.  También los márgenes (%) de utilidad y descuentos previstos.")
     st.markdown("2. Para ingresar al Sistema, escriba a continuación la contraseña 🔑 suministrada por su Asesor de Importación para comenzar el análisis.")
     
