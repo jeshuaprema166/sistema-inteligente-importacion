@@ -439,6 +439,8 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.set_font("Helvetica", "B", 11)  # Un punto más alto y en negrita
     pdf.set_text_color(50, 50, 50)
     pdf.cell(0, 6, f"{config['empresa']}  |  RIF: {config['rif']}  |  Propietario: {config['propietario']}", align="C")
+
+    pdf.ln(7) # <--- Salto de línea para separar el propietario del origen
     
     # Datos de Origen en el PDF (limpio y controlado)
     pdf.set_font("Helvetica", "", 9)
