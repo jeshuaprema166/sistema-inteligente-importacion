@@ -134,31 +134,45 @@ def prorratear_gasto(monto, productos, campo_base):
         partes_en_centavos[indice] += 1
     return [Decimal(parte) / 100 for parte in partes_en_centavos]
 
-def evaluar_semaforo(stock_actual, ventas_semanales, dias_entrega):
-    # Evitar división por cero si aún no hay ventas registradas
-    if ventas_semanales <= 0:
-        return "⚪", "Sin ventas registradas", 0
+def evaluar_semaforo(stock_actual, ventas_semanales, dias_entrega, fecha_proximo_pedido=None):
+    from datetime import date
     
-    # Cálculos matemáticos
+    if ventas_semanales <= 0:
+        return "⚪", "Sin ventas registradas", 0, 0, False
+    
     semanas_stock = stock_actual / ventas_semanales
     semanas_entrega = dias_entrega / 7
     margen = semanas_stock - semanas_entrega
     
-    # Lógica de los 3 colores
+    # Sugerido para cubrir entrega + 4 semanas de colchón
+    sugerido_ahora = int((semanas_entrega * ventas_semanales) + (4 * ventas_semanales) - stock_actual)
+    if sugerido_ahora < 0: sugerido_ahora = 0
+    
+    sugerido_futuro = 0
+    riesgo_quiebre = False
+    
+    if fecha_proximo_pedido and fecha_proximo_pedido > date.today():
+        dias_hasta_pedido = (fecha_proximo_pedido - date.today()).days
+        semanas_hasta_pedido = dias_hasta_pedido / 7
+        
+        demanda_futura = (semanas_hasta_pedido * ventas_semanales) + (semanas_entrega * ventas_semanales) + (4 * ventas_semanales)
+        sugerido_futuro = int(demanda_futura - stock_actual)
+        if sugerido_futuro < 0: sugerido_futuro = 0
+        
+        if semanas_stock < semanas_hasta_pedido:
+            riesgo_quiebre = True
+
     if margen <= 0:
         color = "🔴"
         mensaje = "¡ALERTA ROJA! Pedir YA"
-        sugerido = (semanas_entrega * ventas_semanales) + (4 * ventas_semanales) - stock_actual
     elif margen <= 2:
         color = "🟡"
         mensaje = "Precaución: Pedir pronto"
-        sugerido = (semanas_entrega * ventas_semanales) + (4 * ventas_semanales) - stock_actual
     else:
         color = "🟢"
         mensaje = "Todo bien: Stock suficiente"
-        sugerido = 0
         
-    return color, mensaje, int(sugerido)
+    return color, mensaje, sugerido_ahora, sugerido_futuro, riesgo_quiebre
 
 def evaluar_carga_pesada(p):
     precio_china = p.get("precio_china", 0)
