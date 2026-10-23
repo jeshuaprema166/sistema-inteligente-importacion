@@ -87,6 +87,10 @@ DEFAULTS = {
     "margen": 30.0,
     "desc_mayorista": 15.0,
     "desc_especial": 5.0,
+    "origen": "",
+    "proveedor": "",
+    "factura": "",
+    "fecha_proximo_pedido": None  # <--- NUEVO
 }
 
 def leer_decimal(texto, etiqueta, permitir_cero=True, es_dinero=False):
@@ -323,6 +327,13 @@ def panel_configuracion():
     config["origen"] = st.sidebar.text_input("Origen (País)", value=config.get("origen", ""))
     config["proveedor"] = st.sidebar.text_input("Proveedor", value=config.get("proveedor", ""))
     config["factura"] = st.sidebar.text_input("Nro. de Factura", value=config.get("factura", ""))
+
+    # --- NUEVO CAMPO DE FECHA ---
+    fecha_actual = config.get("fecha_proximo_pedido")
+    config["fecha_proximo_pedido"] = st.sidebar.date_input(
+        "Fecha estimada del próximo pedido", 
+        value=fecha_actual
+    )
     
     # Guardar cambios en el estado de la sesión para que no se borren
     st.session_state.config_empresa = config
