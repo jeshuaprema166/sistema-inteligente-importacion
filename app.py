@@ -1,4 +1,4 @@
-nfrom decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import pandas as pd
 import streamlit as st
 import io
