@@ -564,7 +564,7 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.set_font("Helvetica", "B", 9)
         pdf.set_fill_color(230, 240, 250)
         pdf.set_text_color(31, 73, 125)
-        pdf.cell(0, 7, f"  Producto: {p['nombre']} (Pedir: {sugerido} unds)", border=1, fill=True)
+        pdf.cell(0, 7, f"  Producto: {p['nombre']}, border=1, fill=True)
         pdf.ln(7)
         
         # Imprimir Estado con su color específico
@@ -572,7 +572,9 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.set_text_color(50, 50, 50)
         pdf.cell(35, 5, "  Estado de Alerta:", border="L")
         pdf.set_text_color(r_col, g_col, b_col)
-        pdf.cell(155, 5, f"{txt_semaforo} - {mensaje}", border="R")
+        pdf.cell(130, 5, f"{txt_semaforo} - {mensaje}", border="") # Achicamos un poco el ancho
+        pdf.set_text_color(50, 50, 50) # Volvemos a gris para el "Pedir"
+        pdf.cell(25, 5, f"(Pedir: {sugerido} unds)", border="R", align="R") # Lo ponemos a la derecha
         pdf.ln(5)
         
         pdf.set_font("Helvetica", "", 8)
