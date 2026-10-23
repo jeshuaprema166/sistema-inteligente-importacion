@@ -571,13 +571,19 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.set_font("Helvetica", "B", 8)
         pdf.set_text_color(50, 50, 50)
         pdf.cell(35, 5, "  Estado de Alerta:", border="L")
-        pdf.set_text_color(r_col, g_col, b_col)
-        pdf.cell(130, 5, f"{txt_semaforo} - {mensaje}", border="") # Achicamos un poco el ancho
-        pdf.set_text_color(50, 50, 50) # Volvemos a gris para el "Pedir"
-        pdf.cell(25, 5, f"(Pedir: {sugerido} unds)", border="R", align="R") # Lo ponemos a la derecha
-        pdf.ln(5)
         
+        pdf.set_text_color(r_col, g_col, b_col)
+        pdf.cell(130, 5, f"{txt_semaforo} - {mensaje}", border="") # Aquí va la alerta
+        
+        # --- EL NUEVO TEXTO DEL PEDIR, RESALTADO ---
+        pdf.set_font("Helvetica", "B", 10) # Letra más grande y en negrita
+        pdf.set_text_color(200, 0, 0)      # Color rojo
+        pdf.cell(25, 5, f"=====> (Pedir: {sugerido} unds)", border="R", align="R") 
+        
+        # Restauramos la fuente normal para el siguiente producto
         pdf.set_font("Helvetica", "", 8)
+        pdf.set_text_color(50, 50, 50)
+        pdf.ln(5)
         pdf.set_text_color(50, 50, 50)
         info_izq = f"Cant.: {p['cantidad']} unds | P. China U.: $ {p['precio_china']:.2f} | Peso T.: {p['peso_total']:.2f} kg | Vol. T.: {p['volumen_total']:.4f} m3"
         info_der = f"Gastos Arribo U.: $ {p['gasto_unitario']:.2f} | COSTO REAL EN ESTANTE: $ {p['costo_unitario']:.2f}"
