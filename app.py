@@ -475,21 +475,25 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.cell(0, 10, "REPORTE EJECUTIVO DE IMPORTACIÓN", align="C")
     pdf.ln(10)
     
-    pdf.set_font("Helvetica", "B", 11)  # Un punto más alto y en negrita
+    # Empresa en grande
+    pdf.set_font("Helvetica", "B", 12)
+    pdf.set_text_color(31, 73, 125) # Azul corporativo
+    pdf.cell(0, 6, f"{config['empresa']}", align="C")
+    pdf.ln(6)
+    
+    # RIF y Propietario en la línea de abajo (un poco más pequeños)
+    pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(50, 50, 50)
-    pdf.cell(0, 6, f"{config['empresa']}  |  RIF: {config['rif']}  |  Propietario: {config['propietario']}", align="C")
-
-    pdf.ln(7) # <--- Salto de línea para separar el propietario del origen
+    pdf.cell(0, 5, f"RIF: {config['rif']}  |  Propietario: {config['propietario']}", align="C")
+    pdf.ln(7)
     
-    # Datos de Origen en el PDF (limpio y controlado)
-    pdf.set_font("Helvetica", "", 9)
-    pdf.set_text_color(100, 100, 100)
+    # Datos de Origen en el PDF (Destacados en Negrita)
+    pdf.set_font("Helvetica", "B", 10) # Negrita y tamaño 10
+    pdf.set_text_color(50, 50, 50) # Gris oscuro para que resalte
     prov_corto = str(config.get('proveedor', 'N/A'))[:40]
-    
     pdf.cell(0, 5, f"Origen: {config.get('origen', 'N/A')}  |  Proveedor: {prov_corto}  |  Factura: {config.get('factura', 'N/A')}", align="C")
     pdf.ln(12) 
-    
-    pdf.set_text_color(50, 50, 50) # Volver al color normal
+    pdf.set_text_color(50, 50, 50) # Volver al color normal para las tarjetas de abajo 
     
     # --- TARJETAS KPIs SUPERIORES ---
     total_unidades = sum(p["cantidad"] for p in productos)
