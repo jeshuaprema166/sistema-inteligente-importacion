@@ -620,13 +620,15 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.set_font("Helvetica", "B", 10) # Letra más grande y en negrita
         pdf.set_text_color(200, 0, 0)      # Color rojo
         pdf.cell(25, 5, f"=====> (Pedir: {sug_ahora} unds)", border="R", align="R") 
+        pdf.ln(5) # <--- SALTO DE LÍNEA CLAVE
+        
         if sug_futuro > 0 and config.get("fecha_proximo_pedido"):
             pdf.set_font("Helvetica", "I", 8)
             pdf.set_text_color(100, 100, 100)
             pdf.cell(0, 5, f"  Planificación para el {config['fecha_proximo_pedido']}: Pedir {sug_futuro} unds", border="LR", align="R")
             pdf.ln(5)
             pdf.set_font("Helvetica", "", 8)
-        
+           
         # Restauramos la fuente normal para el siguiente producto
         pdf.set_font("Helvetica", "", 8)
         pdf.set_text_color(50, 50, 50)
