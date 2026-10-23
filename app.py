@@ -709,61 +709,98 @@ def generar_pdf(productos, gastos_contenedor, config):
 def mostrar_resultado(productos, gastos_contenedor, config):
     st.success("✅ Reporte generado correctamente.")
     
-    # 2. ENCABEZADO CORPORATIVO
-    st.markdown("<h2 style='text-align: center; color: #1f497d;'>📊 REPORTE EJECUTIVO DE IMPORTACIÓN</h2>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align: center; color: #666666; font-size: 1.05rem;'><b>{config['empresa']}</b> | RIF: {config['rif']} | Propietario: {config['propietario']}</p>", unsafe_allow_html=True)
-    st.markdown(
-        f"<p style='text-align: left; color: #555555; font-size: 0.9rem; line-height: 1.6;'>"
-        f"<b>Origen:</b> {config.get('origen', 'N/A')}<br>"
-        f"<b>Proveedor:</b> {config.get('proveedor', 'N/A')}<br>"
-        f"<b>Factura N°:</b> {config.get('factura', 'N/A')}"
-        f"</p>", 
-        unsafe_allow_html=True
-    )
-    st.markdown("")
-
-    # 3. TARJETAS MÉTRICAS EJECUTIVAS SUPERIORES (KPIs)
+    # 1. INYECCIÓN DE ESTILOS CSS (Para las tarjetas de lujo)
+    st.markdown("""
+    <style>
+        .kpi-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 6px solid #1f497d;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .kpi-title {
+            font-size: 0.9rem;
+            color: #555555;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .kpi-value {
+            font-size: 1.8rem;
+            color: #1f497d;
+            font-weight: 800;
+        }
+        .header-box {
+            text-align: center;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #1f497d;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # 2. ENCABEZADO PRINCIPAL (Centrado y con fondo)
+    st.markdown(f"""
+    <div class="header-box">
+        <h1 style='color: #1f497d; margin: 0;'>📊 REPORTE EJECUTIVO DE IMPORTACIÓN</h1>
+        <p style='color: #666666; font-size: 1.1rem; margin-top: 10px;'>
+            <b>{config['empresa']}</b> | RIF: {config['rif']} | Propietario: {config['propietario']}
+        </p>
+        <p style='color: #333333; font-size: 1rem; margin-top: 5px; background-color: #e8f4f8; display: inline-block; padding: 5px 15px; border-radius: 20px;'>
+            <b>Origen:</b> {config.get('origen', 'N/A')} &nbsp;|&nbsp; 
+            <b>Proveedor:</b> {config.get('proveedor', 'N/A')} &nbsp;|&nbsp; 
+            <b>Factura N°:</b> {config.get('factura', 'N/A')}
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # 3. CÁLCULOS Y TARJETAS KPI (Alineadas en 4 columnas)
     total_unidades = sum(p["cantidad"] for p in productos)
     gasto_total_contenedor = sum(sum(p["gastos"].values()) for p in productos)
     costo_total_fob = sum(p["precio_china"] * p["cantidad"] for p in productos)
-
+    
     col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4)
-
+    
     with col_kpi1:
-        st.markdown(f"""
+        st.markdown(f'''
         <div class="kpi-container">
             <div class="kpi-title">📦 Productos</div>
             <div class="kpi-value">{len(productos)} ítems</div>
         </div>
-        """, unsafe_allow_html=True)
-
+        ''', unsafe_allow_html=True)
+    
     with col_kpi2:
-        st.markdown(f"""
+        st.markdown(f'''
         <div class="kpi-container">
             <div class="kpi-title">🔢 Cant. Unidades</div>
             <div class="kpi-value">{total_unidades:,} unds</div>
         </div>
-        """, unsafe_allow_html=True)
-
+        ''', unsafe_allow_html=True)
+    
     with col_kpi3:
-        st.markdown(f"""
+        st.markdown(f'''
         <div class="kpi-container">
             <div class="kpi-title">💰 Costo Mercancía</div>
             <div class="kpi-value">{formato_dinero(costo_total_fob)}</div>
         </div>
-        """, unsafe_allow_html=True)
-
+        ''', unsafe_allow_html=True)
+    
     with col_kpi4:
-        st.markdown(f"""
+        st.markdown(f'''
         <div class="kpi-container">
             <div class="kpi-title">🚢 Gastos Arribo</div>
             <div class="kpi-value">{formato_dinero(gasto_total_contenedor)}</div>
         </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("")
-
-    # 4. TABLA RESUMEN INTERACTIVA Y LIMPIA
+        ''', unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # 4. TÍTULO DE LA TABLA RESUMEN
     st.markdown("<h4 style='color: #1f497d;'>📋 Resumen General de Costos y Precios de Venta</h4>", unsafe_allow_html=True)
 
     datos_resumen = []
