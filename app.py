@@ -617,23 +617,22 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.cell(130, 5, f"{txt_semaforo} - {mensaje}", border="") # Aquí va la alerta
         
         # --- EL NUEVO TEXTO DEL PEDIR, RESALTADO ---
-        pdf.set_font("Helvetica", "B", 10) # Letra más grande y en negrita
-        pdf.set_text_color(200, 0, 0)      # Color rojo
+        pdf.set_font("Helvetica", "B", 10) 
+        pdf.set_text_color(200, 0, 0)      
         pdf.cell(25, 5, f"=====> (Pedir: {sug_ahora} unds)", border="R", align="R") 
-        pdf.ln(5) # <--- SALTO DE LÍNEA CLAVE
+        
+        pdf.ln(5) # <--- Aquí bajamos la línea para la planificación
         
         if sug_futuro > 0 and config.get("fecha_proximo_pedido"):
             pdf.set_font("Helvetica", "I", 8)
             pdf.set_text_color(100, 100, 100)
             pdf.cell(0, 5, f"  Planificación para el {config['fecha_proximo_pedido']}: Pedir {sug_futuro} unds", border="LR", align="R")
-            pdf.ln(5)
+            pdf.ln(5) 
             pdf.set_font("Helvetica", "", 8)
-           
-        # Restauramos la fuente normal para el siguiente producto
-        pdf.set_font("Helvetica", "", 8)
+        
+        # --- DATOS FÍSICOS (CANTIDAD Y GASTOS) ---
         pdf.set_text_color(50, 50, 50)
-        pdf.ln(5)
-        pdf.set_text_color(50, 50, 50)
+        
         info_izq = f"Cant.: {p['cantidad']} unds | P. China U.: $ {p['precio_china']:.2f} | Peso T.: {p['peso_total']:.2f} kg | Vol. T.: {p['volumen_total']:.4f} m3"
         info_der = f"Gastos Arribo U.: $ {p['gasto_unitario']:.2f} | COSTO REAL EN ESTANTE: $ {p['costo_unitario']:.2f}"
         
@@ -641,7 +640,7 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.ln(5)
         pdf.set_font("Helvetica", "B", 8)
         pdf.cell(0, 5, f"  {info_der}", border="LR")
-        pdf.ln(5)
+        pdf.ln(5)   
         
         # --- DIVIDIR GASTOS ASIGNADOS EN DOS LÍNEAS ---
         gastos_items = list(p["gastos"].items())
