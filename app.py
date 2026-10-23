@@ -628,7 +628,7 @@ def generar_pdf(productos, gastos_contenedor, config):
             pdf.set_text_color(100, 100, 100)
             pdf.cell(0, 5, f"  Planificación para el {config['fecha_proximo_pedido']}: Pedir {sug_futuro} unds", border="LR", align="R")
             pdf.ln(5) 
-            pdf.set_font("Helvetica", "BI", 9)
+            pdf.set_font("Helvetica", "", 8)
         
         # --- DATOS FÍSICOS (CANTIDAD Y GASTOS) ---
         pdf.set_text_color(50, 50, 50)
