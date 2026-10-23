@@ -759,7 +759,12 @@ def mostrar_resultado(productos, gastos_contenedor, config):
 
     datos_resumen = []
     for p in productos:
-        color, mensaje, sugerido = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0))
+        color, mensaje, sug_ahora, sug_futuro, riesgo = evaluar_semaforo(
+            p.get("stock_actual", 0), 
+            p.get("ventas_semanales", 0), 
+            p.get("dias_entrega", 0),
+            config.get("fecha_proximo_pedido")
+        )
         datos_resumen.append({
             "Producto": p["nombre"],
             "Cant.": p["cantidad"],
@@ -788,7 +793,7 @@ def mostrar_resultado(productos, gastos_contenedor, config):
             config.get("fecha_proximo_pedido")
         )
         
-        titulo_expander = f"📦 {p['nombre']} | {color} {mensaje} (Pedir: {sugerido} unds)"
+        titulo_expander = f"📦 {p['nombre']} | {color} {mensaje} (Pedir: {sug_ahora} unds)"
         
         # 2. AQUÍ SE ABRE EL ACORDEÓN
         with st.expander(titulo_expander, expanded=(i == 1)):
