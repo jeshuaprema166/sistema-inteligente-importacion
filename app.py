@@ -263,16 +263,22 @@ def crear_reporte(productos, gastos_contenedor, config):
         ])
        
         # --- BLOQUE DEL SEMÁFORO EN EL TEXTO ---
-        color, mensaje, sugerido = evaluar_semaforo(
+        color, mensaje, sug_ahora, sug_futuro, riesgo = evaluar_semaforo(
             producto.get("stock_actual", 0), 
             producto.get("ventas_semanales", 0), 
-            producto.get("dias_entrega", 0)
+            producto.get("dias_entrega", 0),
+            config.get("fecha_proximo_pedido")
         )
         lineas.extend([
             f"   SEMÁFORO DE REPOSICIÓN: {color} {mensaje}",
-            f"   Unidades sugeridas a pedir: {sugerido}",
-            "-" * 72
+            f"   ====> Pedir AHORA: {sug_ahora} unds",
         ])
+        if sug_futuro > 0 and config.get("fecha_proximo_pedido"):
+            lineas.append(f"   ====> Para el pedido del {config['fecha_proximo_pedido']}: {sug_futuro} unds")
+        if riesgo:
+            lineas.append("   ⚠️ ALERTA: Se agota antes del próximo pedido. Buscar proveedor local.")
+            
+        lineas.append("-" * 72)
 
         # --- BLOQUE DE CARGA PESADA EN EL TEXTO ---
         color_carga, mensaje_carga, _ = evaluar_carga_pesada(producto)
@@ -539,7 +545,12 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.set_font("Helvetica", "", 8)
     
     for p in productos:
-        color, mensaje, sugerido = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0))
+        color, mensaje, sug_ahora, sug_futuro, riesgo = evaluar_semaforo(
+            p.get("stock_actual", 0), 
+            p.get("ventas_semanales", 0), 
+            p.get("dias_entrega", 0),
+            config.get("fecha_proximo_pedido")
+        )
         
         # Determinar texto y color RGB para la tabla resumen
         if "🔴" in color:
@@ -574,7 +585,12 @@ def generar_pdf(productos, gastos_contenedor, config):
     pdf.ln(8)
     
     for p in productos:
-        color, mensaje, sugerido = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0))
+        color, mensaje, sug_ahora, sug_futuro, riesgo = evaluar_semaforo(
+            p.get("stock_actual", 0), 
+            p.get("ventas_semanales", 0), 
+            p.get("dias_entrega", 0),
+            config.get("fecha_proximo_pedido")
+        )
         
         if "🔴" in color:
             txt_semaforo = "ROJO"
@@ -603,7 +619,13 @@ def generar_pdf(productos, gastos_contenedor, config):
         # --- EL NUEVO TEXTO DEL PEDIR, RESALTADO ---
         pdf.set_font("Helvetica", "B", 10) # Letra más grande y en negrita
         pdf.set_text_color(200, 0, 0)      # Color rojo
-        pdf.cell(25, 5, f"=====> (Pedir: {sugerido} unds)", border="R", align="R") 
+        pdf.cell(25, 5, f"=====> (Pedir: {sug_ahora} unds)", border="R", align="R") 
+        if sug_futuro > 0 and config.get("fecha_proximo_pedido"):
+            pdf.set_font("Helvetica", "I", 8)
+            pdf.set_text_color(100, 100, 100)
+            pdf.cell(0, 5, f"  Planificación para el {config['fecha_proximo_pedido']}: Pedir {sug_futuro} unds", border="LR", align="R")
+            pdf.ln(5)
+            pdf.set_font("Helvetica", "", 8)
         
         # Restauramos la fuente normal para el siguiente producto
         pdf.set_font("Helvetica", "", 8)
@@ -759,10 +781,11 @@ def mostrar_resultado(productos, gastos_contenedor, config):
 
     for i, p in enumerate(productos, start=1):
         # 1. Cálculos previos para el acordeón
-        color, mensaje, sugerido = evaluar_semaforo(
-            p.get("stock_actual", 0),
-            p.get("ventas_semanales", 0),
-            p.get("dias_entrega", 0)
+        color, mensaje, sug_ahora, sug_futuro, riesgo = evaluar_semaforo(
+            p.get("stock_actual", 0), 
+            p.get("ventas_semanales", 0), 
+            p.get("dias_entrega", 0),
+            config.get("fecha_proximo_pedido")
         )
         
         titulo_expander = f"📦 {p['nombre']} | {color} {mensaje} (Pedir: {sugerido} unds)"
@@ -807,11 +830,18 @@ def mostrar_resultado(productos, gastos_contenedor, config):
 
             # 5. ALERTAS DEL SEMÁFORO
             if color == "🔴":
-                st.error(f"🚨 **Alerta de Reposición (IA):** {mensaje}")
+                st.error(f"🚨 **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sug_ahora}** unidades AHORA.")
             elif color == "🟡":
-                st.warning(f"⚠️ **Alerta de Reposición (IA):** {mensaje}")
+                st.warning(f"⚠️ **Alerta de Reposición (IA):** {mensaje}. Se sugiere pedir **{sug_ahora}** unidades pronto.")
             else:
-                st.success(f"🟢 **Estado de Inventario:** {mensaje}")
+                st.success(f"🟢 **Estado de Inventario:** {mensaje}. No requiere reposición por el momento.")
+    
+            # --- NUEVO: ALERTA DE FECHA FUTURA (Si aplica) ---
+            if sug_futuro > 0 and config.get("fecha_proximo_pedido"):
+                st.info(f"📅 **Planificación:** Para el pedido del {config['fecha_proximo_pedido']}, se sugieren **{sug_futuro}** unidades.")
+                
+            if riesgo:
+                st.warning("⚠️ **ALERTA CRÍTICA:** Este producto se agota antes del próximo pedido. Considere comprar al proveedor local.")
 
             # 6. ALERTAS DE CARGA PESADA (ANEXO C)
             color_carga, mensaje_carga, _ = evaluar_carga_pesada(p)
