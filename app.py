@@ -624,11 +624,11 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.ln(5) # <--- Aquí bajamos la línea para la planificación
         
         if sug_futuro > 0 and config.get("fecha_proximo_pedido"):
-            pdf.set_font("Helvetica", "I", 8)
+            pdf.set_font("Helvetica", "BI", 9)
             pdf.set_text_color(100, 100, 100)
             pdf.cell(0, 5, f"  Planificación para el {config['fecha_proximo_pedido']}: Pedir {sug_futuro} unds", border="LR", align="R")
             pdf.ln(5) 
-            pdf.set_font("Helvetica", "", 8)
+            pdf.set_font("Helvetica", "BI", 9)
         
         # --- DATOS FÍSICOS (CANTIDAD Y GASTOS) ---
         pdf.set_text_color(50, 50, 50)
