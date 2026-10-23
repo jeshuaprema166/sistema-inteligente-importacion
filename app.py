@@ -659,19 +659,27 @@ def generar_pdf(productos, gastos_contenedor, config):
     
     # --- FICHA DEL ASESOR DE IMPORTACIÓN EN EL PDF ---
     try:
+        # Si el cursor está muy abajo (a menos de 30mm del final), creamos una página nueva
+        if pdf.get_y() > 250:
+            pdf.add_page()
+    
+        pdf.ln(5) # Separación de la tabla de arriba
+        y_ficha = pdf.get_y()
+        
+        # Dibujamos el recuadro contenedor
         pdf.set_fill_color(240, 245, 250)
         pdf.set_draw_color(31, 73, 125)
-        pdf.rect(10, pdf.get_y(), 190, 24, style="DF")
+        pdf.rect(10, y_ficha, 190, 26, style="DF")
         
-        y_ficha = pdf.get_y() + 2
-        
+        # Insertamos la foto un poquito más abajo para que quede centrada en el recuadro
         if os.path.exists("profesor.jpg"):
             try:
-                pdf.image("profesor.jpg", x=12, y=y_ficha, w=20)
+                pdf.image("profesor.jpg", x=12, y=y_ficha + 3, w=20)
             except Exception:
                 pass
                 
-        pdf.set_xy(35, y_ficha)
+        # Escribimos el texto a la derecha de la foto (x=35)
+        pdf.set_xy(35, y_ficha + 2)
         pdf.set_font("Helvetica", "B", 9)
         pdf.set_text_color(31, 73, 125)
         pdf.cell(0, 4, "Diseñado y elaborado por su Asesor de Importación Inteligente:")
