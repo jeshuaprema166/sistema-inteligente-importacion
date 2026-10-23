@@ -564,7 +564,7 @@ def generar_pdf(productos, gastos_contenedor, config):
         pdf.set_font("Helvetica", "B", 9)
         pdf.set_fill_color(230, 240, 250)
         pdf.set_text_color(31, 73, 125)
-        pdf.cell(0, 7, f"  Producto: {p['nombre']}, border=1, fill=True)
+        pdf.cell(0, 7, f"  Producto: {p['nombre']}", border=1, fill=True)
         pdf.ln(7)
         
         # Imprimir Estado con su color específico
