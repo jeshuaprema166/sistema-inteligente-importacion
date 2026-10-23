@@ -258,7 +258,6 @@ def crear_reporte(productos, gastos_contenedor, config):
 
         # --- BLOQUE DE CARGA PESADA EN EL TEXTO ---
         color_carga, mensaje_carga, _ = evaluar_carga_pesada(producto)
-        )
         lineas.extend([
             f"   EVALUACIÓN DE CARGA: {color_carga} {mensaje_carga}",
             "----------------------------------------"
