@@ -1,4 +1,4 @@
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+nfrom decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import pandas as pd
 import streamlit as st
 import io
@@ -773,7 +773,7 @@ def mostrar_resultado(productos, gastos_contenedor, config):
             "PVP Mayorista": f"$ {p['pvp_mayorista']:.2f}",
             "PVP Especial": f"$ {p['pvp_especial']:.2f}",
             "SemáforoIA": f"{color} {mensaje}",
-            "Pedir (Unds)": sugerido
+            "Pedir (Unds)": sug_ahora
         })
 
     df_resumen = pd.DataFrame(datos_resumen)
