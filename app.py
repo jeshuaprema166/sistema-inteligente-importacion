@@ -190,23 +190,35 @@ def prorratear_gasto(monto, productos, campo_base):
     return [Decimal(parte) / 100 for parte in partes_en_centavos]
 
 def evaluar_semaforo(stock_actual, ventas_semanales, dias_entrega, fecha_proximo_pedido=None):
-    if ventas_semanales <= 0: return "⚪", "Sin ventas registradas", 0, 0, False
+    if ventas_semanales <= 0:
+        return "⚪", "Sin ventas registradas", 0, 0, False
+    # Forzamos a que todos sean decimales (float) para evitar el choque de tipos
+    stock_actual = float(stock_actual)
+    ventas_semanales = float(ventas_semanales)
+    dias_entrega = float(dias_entrega)
+
     semanas_stock   = stock_actual / ventas_semanales
-    semanas_entrega = dias_entrega / 7
+    semanas_entrega = dias_entrega / 7.0
     margen = semanas_stock - semanas_entrega
     sugerido_ahora = int((semanas_entrega * ventas_semanales) + (4 * ventas_semanales) - stock_actual)
-    if sugerido_ahora < 0: sugerido_ahora = 0
+    if sugerido_ahora < 0:
+        sugerido_ahora = 0
     sugerido_futuro, riesgo_quiebre = 0, False
     if fecha_proximo_pedido and fecha_proximo_pedido > date.today():
         dias_hasta = (fecha_proximo_pedido - date.today()).days
-        semanas_hasta = dias_hasta / 7
+        semanas_hasta = dias_hasta / 7.0
         demanda_futura = (semanas_hasta * ventas_semanales) + (semanas_entrega * ventas_semanales) + (4 * ventas_semanales)
         sugerido_futuro = int(demanda_futura - stock_actual)
-        if sugerido_futuro < 0: sugerido_futuro = 0
-        if semanas_stock < semanas_hasta: riesgo_quiebre = True
-    if margen <= 0: color, mensaje = "🔴", "¡ALERTA ROJA! Pedir YA"
-    elif margen <= 2: color, mensaje = "🟡", "Precaución: Pedir pronto"
-    else: color, mensaje = "🟢", "Todo bien: Stock suficiente"
+        if sugerido_futuro < 0:
+            sugerido_futuro = 0
+        if semanas_stock < semanas_hasta:
+            riesgo_quiebre = True
+    if margen <= 0:
+        color, mensaje = "🔴", "¡ALERTA ROJA! Pedir YA"
+    elif margen <= 2:
+        color, mensaje = "🟡", "Precaución: Pedir pronto"
+    else:
+        color, mensaje = "🟢", "Todo bien: Stock suficiente"
     return color, mensaje, sugerido_ahora, sugerido_futuro, riesgo_quiebre
 
 def evaluar_carga_pesada(p):
