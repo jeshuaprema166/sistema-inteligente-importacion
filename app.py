@@ -419,7 +419,13 @@ def crear_reporte(productos, gastos_contenedor, config):
         lineas.extend([f"   EVALUACIÓN DE CARGA: {color_carga} {mensaje_carga}", "----------------------------------------"])
     lineas.extend(["", "=" * 60, "  TABLA RESUMEN", "=" * 60, f"  {'Producto':<20s} {'Cant.':>8s} {'Costo U.':>10s} {'PVP N.':>10s} {'PVP M.':>10s} {'PVP E.':>10s} {'PVP Sug.':>10s}", "  " + "-" * 90])
     for producto in productos:
-        lineas.append(f"  {producto['nombre']:<20s} {producto['cantidad']:>8,} $ {producto['costo_unitario']:>8.2f} $ {producto['pvp_normal']:>8.2f} $ {producto['pvp_mayorista']:>8.2f} $ {producto['pvp_especial']:>8.2f} $ {producto['pvp_sugerido']:>8.2f}")
+        nombre_corto = str(producto['nombre'])[:33] 
+        lineas.append(
+            f"  {nombre_corto:<35s} | {producto['cantidad']:>6,} "
+            f"| $ {producto['costo_unitario']:>7.2f} | $ {producto['pvp_normal']:>7.2f} "
+            f"| $ {producto['pvp_mayorista']:>7.2f} | $ {producto['pvp_especial']:>7.2f} "
+            f"| $ {producto['pvp_sugerido']:>7.2f}"
+        )
     lineas.extend(["=" * 60, "", "=" * 72, "   CONTROL DE PRORRATEO", "=" * 72])
     for nombre_gasto, criterio, monto_ingresado in gastos_contenedor:
         monto_repartido = sum((p["gastos"][nombre_gasto] for p in productos), CERO)
@@ -668,9 +674,9 @@ def main():
         col_a, col_b, col_c = st.columns(3)
         with col_a: st.download_button("📄 Descargar TXT", data=reporte, file_name=f"reporte_{config.get('factura','SN')}.txt", mime="text/plain")
         with col_b:
-            if st.button("📄 Generar PDF"):
-                pdf_bytes = generar_pdf_reporte(reporte, config)
-                if pdf_bytes: st.download_button("📥 Descargar PDF", data=pdf_bytes, file_name=f"reporte_{config.get('factura','SN')}.pdf", mime="application/pdf")
+            pdf_bytes = generar_pdf_reporte(reporte, config)
+            if pdf_bytes:
+                st.download_button("📥 Descargar PDF", data=pdf_bytes, file_name=f"reporte_{config.get('factura','SN')}.pdf", mime="application/pdf")
         with col_c: boton_exportar_sheets(productos, config)
     with tab6: vista_historial(config)
 
