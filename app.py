@@ -404,9 +404,11 @@ def crear_reporte(productos, gastos_contenedor, config):
     for indice, producto in enumerate(productos, start=1):
         cantidad = producto["cantidad"]
         lineas.extend(["", f"PRODUCTO {indice}: {producto['nombre']}", "-" * 72, f"   Cantidad:                       {cantidad:>12,}", f"   Peso total:                     {producto['peso_total']:>12,.3f} kg", f"   Volumen total:                  {producto['volumen_total']:>12,.6f} m³", f"   Precio FOB Origen (por unidad): {formato_dinero(producto['precio_fob'])}", f"   Precio FOB Origen (total):      {formato_dinero(producto['precio_fob'] * cantidad)}", "", "   GASTOS DE ARRIBO ASIGNADOS:"])
-        for nombre_gasto, criterio, _ in gastos_contenedor:
-            asignado = producto["gastos"][nombre_gasto]
-            lineas.append(f"      {nombre_gasto} ({criterio}): {formato_dinero(asignado)} total; {formato_dinero(asignado / cantidad)} / u")
+    lineas.append(f"      {'Concepto':<28s} | {'Total':>12s} | {'Por Unidad':>12s}")
+    lineas.append("      " + "-" * 58)
+    for nombre_gasto, criterio, _ in gastos_contenedor:
+        asignado = producto["gastos"][nombre_gasto]
+        lineas.append(f"      {nombre_gasto:<28s} | {formato_dinero(asignado):>12s} | {formato_dinero(asignado / cantidad):>12s} / u")
         lineas.extend(["", f"   Gastos de arribo (total):        {formato_dinero(producto['gastos_totales'])}", f"   Gastos de arribo (por unidad):   {formato_dinero(producto['gasto_unitario'])}", f"   COSTO REAL EN ESTANTE (unidad):  {formato_dinero(producto['costo_unitario'])}", "   PRECIOS DE VENTA:", f"      PVP Normal:                   $ {producto['pvp_normal']:>12,.0f}", f"      PVP Mayorista:                $ {producto['pvp_mayorista']:>12,.0f}", f"      PVP Especial:                 $ {producto['pvp_especial']:>12,.0f}", f"      PVP Sugerido (3 criterios):   {formato_dinero(producto['pvp_sugerido'])}", f"      Rentabilidad real:            {producto['rentabilidad_pct']:.1f}%  {producto.get('alerta_pvp','')}"])
         if producto.get("partida_arancelaria"):
             info = consultar_partida(producto["partida_arancelaria"])
@@ -426,10 +428,12 @@ def crear_reporte(productos, gastos_contenedor, config):
             f"| $ {producto['pvp_mayorista']:>7.2f} | $ {producto['pvp_especial']:>7.2f} "
             f"| $ {producto['pvp_sugerido']:>7.2f}"
         )
-    lineas.extend(["=" * 60, "", "=" * 72, "   CONTROL DE PRORRATEO", "=" * 72])
+    lineas.extend(["", "=" * 72, "   CONTROL DE PRORRATEO", "=" * 72])
+    lineas.append(f"   {'Concepto':<30s} | {'Ingresado':>15s} | {'Repartido':>15s}")
+    lineas.append("   " + "-" * 66)
     for nombre_gasto, criterio, monto_ingresado in gastos_contenedor:
         monto_repartido = sum((p["gastos"][nombre_gasto] for p in productos), CERO)
-        lineas.append(f"   {nombre_gasto} ({criterio}): {formato_dinero(monto_ingresado)} ingresados / {formato_dinero(monto_repartido)} repartidos")
+        lineas.append(f"   {nombre_gasto:<30s} | {formato_dinero(monto_ingresado):>15s} | {formato_dinero(monto_repartido):>15s}")
     lineas.extend(["", "=" * 72, "   Diseñado y elaborado por el Prof. Jesús Pulido V.", "   Asesor de Importación Inteligente · 0424-728.3199 / 0416-291.6426", "=" * 72])
     return "\n".join(lineas) + "\n"
 
@@ -440,8 +444,9 @@ def generar_pdf_reporte(reporte_texto, config):
         pdf.set_font("Helvetica", "I", 9); pdf.cell(0, 6, f"{config.get('empresa','')} · RIF {config.get('rif','')}", ln=True, align="C")
         pdf.set_font("Helvetica", "", 8); pdf.ln(4)
         for linea in reporte_texto.split("\n"):
-            try: pdf.multi_cell(0, 4, linea)
-            except Exception: pdf.multi_cell(0, 4, linea.encode("latin-1", "replace").decode("latin-1"))
+            pdf.set_x(10) # <--- ESTO EVITA EL ERROR DE ESPACIO
+            linea_limpia = linea.encode("latin-1", "replace").decode("latin-1")
+            pdf.multi_cell(0, 4, linea_limpia, new_x="LMARGIN", new_y="NEXT")
         return bytes(pdf.output())
     except Exception as e:
         st.error(f"Error generando PDF: {e}"); return None
