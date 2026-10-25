@@ -162,7 +162,20 @@ def verificar_acceso():
             st.image(nombre, use_container_width=True); break
     st.markdown("<h1 style='text-align:center;'>Bienvenidos 🛳️</h1>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:center;'>¿Sabe cuánto le cuesta realmente traer los productos desde el exterior hasta su depósito?</h3>", unsafe_allow_html=True)
-    st.markdown("* **La verdad** sobre sus costos de importación, márgenes y precios óptimos.\n* **Identificar** los márgenes reales de ganancia antes de nacionalizar.\n* **Optimizar** el espacio de su contenedor.\n* **Alarmas** 🟢🟡🔴 de reposición por IA.\n* **Ingresar** datos desde Excel automáticamente.\n* **Definir** el mejor proveedor del exterior.\n<mark>**✨ Sistema de Importación con IA 🤖 ✨**</mark>", unsafe_allow_html=True)
+    st.markdown(
+    "- **La verdad** sobre sus costos de importación, márgenes y precios"
+    " óptimos.\n- **Identificar** los márgenes reales de ganancia antes de"
+    " nacionalizar.\n- **Optimizar** el espacio de su contenedor.\n-"
+    " **Alarmas** 🟢🟡🔴 de reposición por IA.\n- **Ingresar** datos desde"
+    " Excel automáticamente.\n- **Definir** el mejor proveedor del"
+    " exterior.",
+    )
+    st.markdown(
+        "<h4 style='text-align:center;'><mark>✨ Sistema de Importación con IA"
+        " <span style='font-size: 1.4em;'>🤖</span> ✨</mark></h4>",
+        unsafe_allow_html=True,
+    )
+
     col_i, col_c, col_d = st.columns([1, 1, 1])
     with col_c:
         st.markdown("<h4 style='text-align:center;'>Diseñado y elaborado por<br>su Asesor de Importación Inteligente<br>Prof. Jesús Pulido V.</h4>", unsafe_allow_html=True)
