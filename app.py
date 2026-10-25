@@ -768,14 +768,17 @@ def main():
     with tab3: mostrar_flujo_caja(proyectar_flujo_caja(productos, config, semanas=13, crecimiento_semanal=0.02, costo_fijo_semanal=config.get("costo_fijo_semanal", 0), pago_importacion={"fecha": config.get("fecha_proximo_pedido"), "monto_usd": config.get("monto_proximo_pedido", 0)}))
     with tab4: vista_auditoria_aduanera(productos)
     with tab5:
-        reporte = crear_reporte(productos, gastos_contenedor, config); st.text(reporte)
-        col_a, col_b, col_c = st.columns(3)
-        with col_a: st.download_button("📄 Descargar TXT", data=reporte, file_name=f"reporte_{config.get('factura','SN')}.txt", mime="text/plain")
-        with col_b:
-            pdf_bytes = generar_pdf_reporte(reporte, config)
-            if pdf_bytes:
-                st.download_button("📥 Descargar PDF", data=pdf_bytes, file_name=f"reporte_{config.get('factura','SN')}.pdf", mime="application/pdf")
-        with col_c: boton_exportar_sheets(productos, config)
+        st.subheader("📄 Reporte Ejecutivo")
+        # Generamos el diseño hermoso con la nueva función
+        reporte_html = crear_reporte_html(productos, gastos_contenedor, config)
+        
+        # Lo mostramos en pantalla
+        st.markdown(reporte_html, unsafe_allow_html=True)
+        
+        st.info("💡 Para guardar este reporte como PDF, presione el botón de 'Compartir' de su navegador y seleccione 'Imprimir' o 'Guardar como PDF'. ¡Quedará idéntico a lo que ve en pantalla!")
+        
+        # Mantenemos el botón del CSV para Google Sheets
+        boton_exportar_sheets(productos, config)
     with tab6: vista_historial(config)
 
 if __name__ == "__main__":
