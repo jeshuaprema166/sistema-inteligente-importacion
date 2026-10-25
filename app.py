@@ -396,53 +396,114 @@ def boton_exportar_sheets(productos, config):
     st.download_button("📱 Descargar CSV para Google Sheets", data=csv, file_name=f"importacion_{config.get('factura','SN')}_{id_perfil}.csv", mime="text/csv", help="Súbelo a Google Drive → abrir con Google Sheets → consultar desde el celular.")
 
 # ═══════════════════ 12. REPORTE DE TEXTO Y PDF ════════════════════════
-def crear_reporte(productos, gastos_contenedor, config):
+def crear_reporte_html(productos, gastos_contenedor, config):
+    # Cálculos para las tarjetas superiores
+    total_items = len(productos)
+    total_unds = sum(p["cantidad"] for p in productos)
+    total_mercancia = sum((p["precio_fob"] * p["cantidad"] for p in productos), CERO)
+    total_gastos = sum((p["gastos_totales"] for p in productos), CERO)
     origen_efectivo = texto_efectivo(config.get("origen"), config.get("origen_otro"))
-    sector_efectivo = texto_efectivo(config.get("sector"), config.get("sector_otro"))
-    encabezado = "\n".join(("=" * 72, "   SISTEMA DE COSTOS DE IMPORTACIÓN", f"   Empresa: {config.get('empresa', 'No especificada')}", f"   RIF: {config.get('rif', 'No especificado')}", f"   Propietario: {config.get('propietario', 'No especificado')}", f"   Sector: {sector_efectivo}", f"   Origen: {origen_efectivo} · Proveedor: {config.get('proveedor','N/D')}", f"   Factura: {config.get('factura','N/D')} · Fecha: {date.today().isoformat()}", "=" * 72))
-    lineas = [encabezado, "", "=" * 72, f"   REPORTE DE COSTOS: {len(productos)} productos", "=" * 72]
-    for indice, producto in enumerate(productos, start=1):
-        cantidad = producto["cantidad"]
-        lineas.extend(["", f"PRODUCTO {indice}: {producto['nombre']}", "-" * 72, f"   Cantidad:                       {cantidad:>12,}", f"   Peso total:                     {producto['peso_total']:>12,.3f} kg", f"   Volumen total:                  {producto['volumen_total']:>12,.6f} m³", f"   Precio FOB Origen (por unidad): {formato_dinero(producto['precio_fob'])}", f"   Precio FOB Origen (total):      {formato_dinero(producto['precio_fob'] * cantidad)}", "", "   GASTOS DE ARRIBO ASIGNADOS:"])
-    lineas.append(f"      {'Concepto':<28s} | {'Total':>12s} | {'Por Unidad':>12s}")
-    lineas.append("      " + "-" * 58)
-    for nombre_gasto, criterio, _ in gastos_contenedor:
-        asignado = producto["gastos"][nombre_gasto]
-        lineas.append(f"      {nombre_gasto:<28s} | {formato_dinero(asignado):>12s} | {formato_dinero(asignado / cantidad):>12s} / u")
-        lineas.extend(["", f"   Gastos de arribo (total):        {formato_dinero(producto['gastos_totales'])}", f"   Gastos de arribo (por unidad):   {formato_dinero(producto['gasto_unitario'])}", f"   COSTO REAL EN ESTANTE (unidad):  {formato_dinero(producto['costo_unitario'])}", "   PRECIOS DE VENTA:", f"      PVP Normal:                   $ {producto['pvp_normal']:>12,.0f}", f"      PVP Mayorista:                $ {producto['pvp_mayorista']:>12,.0f}", f"      PVP Especial:                 $ {producto['pvp_especial']:>12,.0f}", f"      PVP Sugerido (3 criterios):   {formato_dinero(producto['pvp_sugerido'])}", f"      Rentabilidad real:            {producto['rentabilidad_pct']:.1f}%  {producto.get('alerta_pvp','')}"])
-        if producto.get("partida_arancelaria"):
-            info = consultar_partida(producto["partida_arancelaria"])
-            lineas.append(f"   PARTIDA ARANCELARIA: {producto['partida_arancelaria']} — {info['descripcion']}")
-        color, mensaje, sug_ahora, sug_futuro, riesgo = evaluar_semaforo(producto.get("stock_actual", 0), producto.get("ventas_semanales", 0), producto.get("dias_entrega", 0), config.get("fecha_proximo_pedido"))
 
-        # Convertimos el emoji en texto para el reporte
-        if color == "🔴": color_txt = "ROJO"
-        elif color == "🟡": color_txt = "AMARILLO"
-        elif color == "🟢": color_txt = "VERDE"
-        else: color_txt = "SIN ALERTA"
+    html = f"""
+    <div style="font-family: Arial, sans-serif; color: #333; max-width: 1000px; margin: auto;">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h1 style="color: #1f4e78; margin-bottom: 5px;">REPORTE EJECUTIVO DE IMPORTACIÓN</h1>
+            <p style="margin: 0; font-size: 14px;"><b>{config.get('empresa', '')}</b> | RIF: {config.get('rif', '')} | Propietario: {config.get('propietario', '')}</p>
+            <p style="margin: 5px 0; font-size: 12px; color: #666;">Origen: {origen_efectivo} | Proveedor: {config.get('proveedor', '')} | Factura: {config.get('factura', '')}</p>
+        </div>
 
-        lineas.extend([f"   SEMÁFORO: [{color_txt}] {mensaje}", f"   ====> Pedir AHORA: {sug_ahora} unds"])
-        if sug_futuro > 0 and config.get("fecha_proximo_pedido"): lineas.append(f"   ====> Para el {config['fecha_proximo_pedido']}: {sug_futuro} unds")
-        if riesgo: lineas.append("   ⚠️ ALERTA: Se agota antes del próximo pedido.")
-        color_carga, mensaje_carga, _ = evaluar_carga_pesada(producto)
-        lineas.extend([f"   EVALUACIÓN DE CARGA: {mensaje_carga}", "----------------------------------------"])
-    lineas.extend(["", "=" * 60, "  TABLA RESUMEN", "=" * 60, f"  {'Producto':<20s} {'Cant.':>8s} {'Costo U.':>10s} {'PVP N.':>10s} {'PVP M.':>10s} {'PVP E.':>10s} {'PVP Sug.':>10s}", "  " + "-" * 90])
-    for producto in productos:
-        nombre_corto = str(producto['nombre'])[:33] 
-        lineas.append(
-            f"  {nombre_corto:<35s} | {producto['cantidad']:>6,} "
-            f"| $ {producto['costo_unitario']:>7.2f} | $ {producto['pvp_normal']:>7.2f} "
-            f"| $ {producto['pvp_mayorista']:>7.2f} | $ {producto['pvp_especial']:>7.2f} "
-            f"| $ {producto['pvp_sugerido']:>7.2f}"
-        )
-    lineas.extend(["", "=" * 72, "   CONTROL DE PRORRATEO", "=" * 72])
-    lineas.append(f"   {'Concepto':<30s} | {'Ingresado':>15s} | {'Repartido':>15s}")
-    lineas.append("   " + "-" * 66)
-    for nombre_gasto, criterio, monto_ingresado in gastos_contenedor:
-        monto_repartido = sum((p["gastos"][nombre_gasto] for p in productos), CERO)
-        lineas.append(f"   {nombre_gasto:<30s} | {formato_dinero(monto_ingresado):>15s} | {formato_dinero(monto_repartido):>15s}")
-    lineas.extend(["", "=" * 72, "   Diseñado y elaborado por el Prof. Jesús Pulido V.", "   Asesor de Importación Inteligente · 0424-728.3199 / 0416-291.6426", "=" * 72])
-    return "\n".join(lineas) + "\n"
+        <!-- Tarjetas KPI -->
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; gap: 10px;">
+            <div style="flex: 1; border: 1px solid #ddd; padding: 10px; text-align: center; border-radius: 5px;">
+                <div style="font-size: 11px; color: #666; font-weight: bold;">PRODUCTOS</div>
+                <div style="font-size: 18px; font-weight: bold; color: #1f4e78;">{total_items} ítems</div>
+            </div>
+            <div style="flex: 1; border: 1px solid #ddd; padding: 10px; text-align: center; border-radius: 5px;">
+                <div style="font-size: 11px; color: #666; font-weight: bold;">CANT. UNIDADES</div>
+                <div style="font-size: 18px; font-weight: bold; color: #1f4e78;">{total_unds:,.0f} unds</div>
+            </div>
+            <div style="flex: 1; border: 1px solid #ddd; padding: 10px; text-align: center; border-radius: 5px;">
+                <div style="font-size: 11px; color: #666; font-weight: bold;">COSTO MERCANCÍA</div>
+                <div style="font-size: 18px; font-weight: bold; color: #1f4e78;">$ {float(total_mercancia):,.2f}</div>
+            </div>
+            <div style="flex: 1; border: 1px solid #ddd; padding: 10px; text-align: center; border-radius: 5px;">
+                <div style="font-size: 11px; color: #666; font-weight: bold;">GASTOS ARRIBO</div>
+                <div style="font-size: 18px; font-weight: bold; color: #1f4e78;">$ {float(total_gastos):,.2f}</div>
+            </div>
+        </div>
+
+        <!-- Tabla Resumen -->
+        <h3 style="color: #1f4e78; margin-bottom: 5px;">Resumen General de Costos y Precios de Venta</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 30px;">
+            <tr style="background-color: #1f4e78; color: white;">
+                <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Producto</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Cant.</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Costo U.</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">PVP Norm.</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">PVP May.</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">PVP Esp.</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Semáforo</th>
+            </tr>
+    """
+    
+    for p in productos:
+        color_txt = "red" if "🔴" in p.get("semaforo_color", "") else ("orange" if "🟡" in p.get("semaforo_color", "") else "green")
+        estado_txt = "ROJO" if "🔴" in p.get("semaforo_color", "") else ("AMARILLO" if "🟡" in p.get("semaforo_color", "") else "VERDE")
+        html += f"""
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; text-align: left;">{p['nombre']}</td>
+                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">{p['cantidad']}</td>
+                <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$ {float(p['costo_unitario']):,.2f}</td>
+                <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$ {float(p['pvp_normal']):,.2f}</td>
+                <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$ {float(p['pvp_mayorista']):,.2f}</td>
+                <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">$ {float(p['pvp_especial']):,.2f}</td>
+                <td style="padding: 8px; border: 1px solid #ddd; text-align: center; font-weight: bold; color: {color_txt};">{estado_txt}</td>
+            </tr>
+        """
+    html += "</table>"
+
+    # Tarjetas de Productos
+    html += """<h3 style="color: #1f4e78; margin-bottom: 10px;">Desglose Individual y Prorrateo de Gastos</h3>"""
+    
+    for p in productos:
+        color_txt = "#c00000" if "🔴" in p.get("semaforo_color", "") else ("#bf8f00" if "🟡" in p.get("semaforo_color", "") else "#006100")
+        estado_txt = "ROJO" if "🔴" in p.get("semaforo_color", "") else ("AMARILLO" if "🟡" in p.get("semaforo_color", "") else "VERDE")
+        
+        _, _, sug_ahora, sug_futuro, _ = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0), config.get("fecha_proximo_pedido"))
+        
+        html += f"""
+        <div style="border: 1px solid #b3d4fc; border-radius: 5px; margin-bottom: 15px; overflow: hidden;">
+            <div style="background-color: #e6f2ff; padding: 8px 12px; border-bottom: 1px solid #b3d4fc; font-weight: bold; color: #1f4e78;">
+                Producto: {p['nombre']}
+            </div>
+            <div style="padding: 12px; font-size: 12px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <div><b style="color: {color_txt};">Estado: {estado_txt}</b> - {p['semaforo']}</div>
+                    <div style="text-align: right;"><b>=====> Pedir {sug_ahora} unds</b><br><span style="color: #666; font-style: italic;">Planificación: Pedir {sug_futuro} unds</span></div>
+                </div>
+                <div style="margin-bottom: 10px; color: #444;">
+                    <b>Cant.:</b> {p['cantidad']} unds | <b>FOB U.:</b> $ {float(p['precio_fob']):,.2f} | <b>Peso T.:</b> {float(p['peso_total']):,.2f} kg | <b>Vol. T.:</b> {float(p['volumen_total']):,.4f} m3
+                </div>
+                <div style="background-color: #f8f9fa; padding: 8px; border-radius: 3px;">
+                    <b>Gastos Arribo U.:</b> $ {float(p['gasto_unitario']):,.2f} | <b>COSTO REAL EN ESTANTE:</b> $ {float(p['costo_unitario']):,.2f}
+                </div>
+                <div style="margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: #555;">
+                    <div><b>Gastos (Parte 1):</b> Manejo: ${float(p['gastos']['Manejo de Puerto']):,.2f} | Flete Nac.: ${float(p['gastos']['Flete Terrestre Nacional']):,.2f} | Log. Int.: ${float(p['gastos']['Logística Internacional']):,.2f}</div>
+                    <div><b>Gastos (Parte 2):</b> Aduana: ${float(p['gastos']['Derechos de Aduana']):,.2f} | Gestión: ${float(p['gastos']['Gestión Aduanera']):,.2f} | Admin: ${float(p['gastos']['Gastos Administrativos']):,.2f}</div>
+                </div>
+            </div>
+        </div>
+        """
+    
+    html += """
+        <div style="text-align: center; margin-top: 30px; padding: 15px; border-top: 2px solid #1f4e78;">
+            <p style="margin: 0; color: #1f4e78; font-weight: bold;">Diseñado y elaborado por su Asesor de Importación Inteligente:</p>
+            <h3 style="margin: 5px 0; color: #1f4e78;">Prof. Jesús Pulido V.</h3>
+            <p style="margin: 0; font-size: 12px; color: #666;">Teléfonos de contacto: 0424-728.3199 / 0416-291.6426 | Correo: jeshua166@gmail.com</p>
+        </div>
+    </div>
+    """
+    return html
 
 def generar_pdf_reporte(reporte_texto, config):
     try:
