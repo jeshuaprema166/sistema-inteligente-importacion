@@ -8,6 +8,7 @@ from datetime import date, timedelta, datetime
 import io, os, json, re, unicodedata
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
 from fpdf import FPDF
 
@@ -503,7 +504,7 @@ def crear_reporte_html(productos, gastos_contenedor, config):
         </div>
     </div>
     """
-    return html
+    return html.replace('\n', '').strip()
 
 def generar_pdf_reporte(reporte_texto, config):
     try:
@@ -773,7 +774,7 @@ def main():
         reporte_html = crear_reporte_html(productos, gastos_contenedor, config)
         
         # Lo mostramos en pantalla
-        st.markdown(reporte_html, unsafe_allow_html=True)
+        components.html(reporte_html, height=1500, scrolling=True)
         
         st.info("💡 Para guardar este reporte como PDF, presione el botón de 'Compartir' de su navegador y seleccione 'Imprimir' o 'Guardar como PDF'. ¡Quedará idéntico a lo que ve en pantalla!")
         
