@@ -501,6 +501,9 @@ def crear_reporte_html(productos, gastos_contenedor, config):
             <p style="margin: 0; color: #1f4e78; font-weight: bold;">Diseñado y elaborado por su Asesor de Importación Inteligente:</p>
             <h3 style="margin: 5px 0; color: #1f4e78;">Prof. Jesús Pulido V.</h3>
             <p style="margin: 0; font-size: 12px; color: #666;">Teléfonos de contacto: 0424-728.3199 / 0416-291.6426 | Correo: jeshua166@gmail.com</p>
+            <div style="margin-top: 15px;">
+                <img src="https://google.com" style="max-width: 180px; height: auto; border-radius: 6px;">
+            </div>
         </div>
     </div>
     """
