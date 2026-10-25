@@ -449,11 +449,36 @@ def generar_pdf_reporte(reporte_texto, config):
         pdf = FPDF(); pdf.add_page()
         pdf.set_font("Helvetica", "B", 14); pdf.cell(0, 10, "Sistema de Análisis de Importación", ln=True, align="C")
         pdf.set_font("Helvetica", "I", 9); pdf.cell(0, 6, f"{config.get('empresa','')} · RIF {config.get('rif','')}", ln=True, align="C")
-        pdf.set_font("Helvetica", "", 8); pdf.ln(4)
+        
+        pdf.set_font("Courier", "", 8); pdf.ln(4)
+        
+        import re
+        emoji_pattern = re.compile("["
+            u"\U0001F600-\U0001F64F" u"\U0001F300-\U0001F5FF"
+            u"\U0001F680-\U0001F6FF" u"\U0001F1E0-\U0001F1FF"
+            u"\U00002702-\U000027B0" u"\U000024C2-\U0001F251"
+            u"\U0001F900-\U0001F9FF" u"\U00002500-\U00002BEF"
+            "]+", flags=re.UNICODE)
+
         for linea in reporte_texto.split("\n"):
-            pdf.set_x(10) # <--- ESTO EVITA EL ERROR DE ESPACIO
-            linea_limpia = linea.encode("latin-1", "replace").decode("latin-1")
-            pdf.multi_cell(0, 4, linea_limpia, new_x="LMARGIN", new_y="NEXT")
+            linea_limpia = emoji_pattern.sub(r'', linea)
+            linea_limpia = linea_limpia.encode("latin-1", "replace").decode("latin-1")
+            
+            # --- AQUÍ APLICAMOS LOS COLORES AL TEXTO ---
+            pdf.set_text_color(0, 0, 0) # Negro por defecto
+            if "[ROJO]" in linea_limpia or "ALERTA ROJA" in linea_limpia:
+                pdf.set_text_color(200, 0, 0) # Color Rojo
+            elif "[AMARILLO]" in linea_limpia or "Precaución" in linea_limpia:
+                pdf.set_text_color(200, 150, 0) # Color Naranja/Amarillo
+            elif "[VERDE]" in linea_limpia or "Todo bien" in linea_limpia:
+                pdf.set_text_color(0, 150, 0) # Color Verde
+            
+            pdf.set_x(10)
+            if not linea_limpia.strip():
+                pdf.ln(4)
+            else:
+                pdf.multi_cell(0, 4, linea_limpia, new_x="LMARGIN", new_y="NEXT")
+                
         return bytes(pdf.output())
     except Exception as e:
         st.error(f"Error generando PDF: {e}"); return None
