@@ -504,6 +504,19 @@ def crear_reporte_html(productos, gastos_contenedor, config):
         </div>
     </div>
     """
+    # Agregar Glosario Técnico
+    html += """
+    <div style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #1f4e78; border-radius: 4px;">
+        <h3 style="color: #1f4e78; margin-top: 0; font-size: 14px;">Apéndice: Glosario Técnico de Comercio Internacional</h3>
+        <ul style="font-size: 11px; color: #555; line-height: 1.5; margin-bottom: 0;">
+            <li><b>Valor FOB:</b> Costo neto de la mercancía en origen (fábrica o puerto de embarque).</li>
+            <li><b>Factor Multiplicador:</b> Coeficiente global para determinar el costo real puesto en bodega por cada dólar invertido.</li>
+            <li><b>Impacto Flete/FOB:</b> Relación porcentual entre el costo del flete y el FOB; mide si la carga es ligera o pesada.</li>
+            <li><b>Costo Final Unitario:</b> Costo real de cada unidad ya nacionalizada (incluye flete, seguro, aranceles y gastos locales).</li>
+            <li><b>Rentabilidad:</b> Porcentaje de ganancia neta estimada respecto al costo final unitario del producto.</li>
+        </ul>
+    </div>
+    """
     return html.replace('\n', '').strip()
 
 def generar_pdf_reporte(reporte_texto, config):
