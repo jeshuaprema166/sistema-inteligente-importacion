@@ -414,11 +414,18 @@ def crear_reporte(productos, gastos_contenedor, config):
             info = consultar_partida(producto["partida_arancelaria"])
             lineas.append(f"   PARTIDA ARANCELARIA: {producto['partida_arancelaria']} — {info['descripcion']}")
         color, mensaje, sug_ahora, sug_futuro, riesgo = evaluar_semaforo(producto.get("stock_actual", 0), producto.get("ventas_semanales", 0), producto.get("dias_entrega", 0), config.get("fecha_proximo_pedido"))
-        lineas.extend([f"   SEMÁFORO: {color} {mensaje}", f"   ====> Pedir AHORA: {sug_ahora} unds"])
+
+        # Convertimos el emoji en texto para el reporte
+        if color == "🔴": color_txt = "ROJO"
+        elif color == "🟡": color_txt = "AMARILLO"
+        elif color == "🟢": color_txt = "VERDE"
+        else: color_txt = "SIN ALERTA"
+
+        lineas.extend([f"   SEMÁFORO: [{color_txt}] {mensaje}", f"   ====> Pedir AHORA: {sug_ahora} unds"])
         if sug_futuro > 0 and config.get("fecha_proximo_pedido"): lineas.append(f"   ====> Para el {config['fecha_proximo_pedido']}: {sug_futuro} unds")
         if riesgo: lineas.append("   ⚠️ ALERTA: Se agota antes del próximo pedido.")
         color_carga, mensaje_carga, _ = evaluar_carga_pesada(producto)
-        lineas.extend([f"   EVALUACIÓN DE CARGA: {color_carga} {mensaje_carga}", "----------------------------------------"])
+        lineas.extend([f"   EVALUACIÓN DE CARGA: {mensaje_carga}", "----------------------------------------"])
     lineas.extend(["", "=" * 60, "  TABLA RESUMEN", "=" * 60, f"  {'Producto':<20s} {'Cant.':>8s} {'Costo U.':>10s} {'PVP N.':>10s} {'PVP M.':>10s} {'PVP E.':>10s} {'PVP Sug.':>10s}", "  " + "-" * 90])
     for producto in productos:
         nombre_corto = str(producto['nombre'])[:33] 
