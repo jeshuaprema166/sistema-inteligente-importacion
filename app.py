@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 import streamlit.components.v1 as components
+from xhtml2pdf import pisa
 import matplotlib.pyplot as plt
 from fpdf import FPDF
 
@@ -533,6 +534,15 @@ def crear_reporte_html(productos, gastos_contenedor, config):
     """
     return html
 
+def generar_pdf_desde_html(html_content):
+    try:
+        result = io.BytesIO()
+        pisa.CreatePDF(io.StringIO(html_content), dest=result)
+        return result.getvalue()
+    except Exception as e:
+        st.error(f"Error generando PDF: {e}")
+        return None
+        
 def leer_excel(archivo):
     if archivo.name.lower().endswith(".csv"): return pd.read_csv(archivo)
     return pd.read_excel(archivo)
