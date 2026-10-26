@@ -830,15 +830,16 @@ def main():
         boton_exportar_sheets(productos, config)
         
         st.markdown("---")
-        if st.button("📥 Generar y Descargar PDF", type="primary"):
-            pdf_bytes = generar_pdf_desde_html(reporte_html)
-            if pdf_bytes:
-                st.download_button(
-                    label="📄 Descargar Reporte en PDF",
-                    data=pdf_bytes,
-                    file_name=f"Reporte_{config.get('factura','SN')}.pdf",
-                    mime="application/pdf"
-                )
+        # Generamos el PDF directamente sin botón intermedio
+        pdf_bytes = generar_pdf_desde_html(reporte_html)
+        if pdf_bytes:
+            st.download_button(
+                label="📄 Descargar Reporte en PDF",
+                data=pdf_bytes,
+                file_name=f"Reporte_{config.get('factura','SN')}.pdf",
+                mime="application/pdf",
+                type="primary"
+            )
 
 if __name__ == "__main__":
     main()
