@@ -464,7 +464,7 @@ def crear_reporte_html(productos, gastos_contenedor, config):
         </div>
 
         <h3 style="color: #1f4e78; margin-bottom: 5px;">Resumen General de Costos y Precios de Venta</h3>
-        <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 30px;">
+        <table style="page-break-inside: avoid; width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 30px;">
             <tr style="background-color: #1f4e78; color: white;">
                 <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Producto</th>
                 <th style="padding: 8px; border: 1px solid #ddd;">Cant.</th>
@@ -501,7 +501,7 @@ def crear_reporte_html(productos, gastos_contenedor, config):
         _, _, sug_ahora, sug_futuro, _ = evaluar_semaforo(p.get("stock_actual", 0), p.get("ventas_semanales", 0), p.get("dias_entrega", 0), config.get("fecha_proximo_pedido"))
         
         html += f"""
-        <div style="border: 1px solid #b3d4fc; border-radius: 5px; margin-bottom: 15px; overflow: hidden;">
+        <div style="page-break-inside: avoid; border: 1px solid #b3d4fc; border-radius: 5px; margin-bottom: 15px; overflow: hidden;">
             <div style="background-color: #e6f2ff; padding: 8px 12px; border-bottom: 1px solid #b3d4fc; font-weight: bold; color: #1f4e78;">
                 Producto: {p['nombre']}
             </div>
