@@ -525,14 +525,18 @@ def crear_reporte_html(productos, gastos_contenedor, config):
         """
     
     html += """
-        <div style="text-align: center; margin-top: 30px; padding: 15px; border-top: 2px solid #1f4e78;">
-            <p style="margin: 0; color: #1f4e78; font-weight: bold;">Diseñado y elaborado por su Asesor de Importación Inteligente:</p>
-            <h3 style="margin: 5px 0; color: #1f4e78;">Prof. Jesús Pulido V.</h3>
-            <p style="margin: 0; font-size: 12px; color: #666;">Teléfonos de contacto: 0424-728.3199 / 0416-291.6426 | Correo: jeshua166@gmail.com</p>
+        <div style="page-break-inside: avoid; text-align: center; margin-top: 40px; padding: 25px; border-top: 2px solid #1f4e78; background-color: #f8f9fa; border-radius: 8px;">
+            <p style="margin: 0 0 10px 0; color: #1f4e78; font-weight: bold; font-size: 14px;">Diseñado y elaborado por su Asesor de Importación Inteligente:</p>
+            <h2 style="margin: 0 0 5px 0; color: #1f4e78; font-size: 20px;">Prof. Jesús Pulido V.</h2>
+            <p style="margin: 0 0 15px 0; font-size: 12px; color: #444; line-height: 1.5;">
+                Teléfonos de contacto: 0424-728.3199 / 0416-291.6426<br>
+                Correo: jeshua166@gmail.com
+            </p>
+            <img src="https://i.postimg.cc/Hxhd38gS/JPV-Asesor-Importacion.jpg" style="width: 140px; border-radius: 8px; border: 2px solid #1f4e78;" />
         </div>
     </div>
     """
-    return html
+    return html.replace('\n', '').strip()
 
 def generar_pdf_desde_html(html_content):
     try:
