@@ -811,10 +811,14 @@ def main():
     with tab5:
         st.subheader("📄 Reporte Ejecutivo")
         reporte_html = crear_reporte_html(productos, gastos_contenedor, config)
-        st.markdown(reporte_html, unsafe_allow_html=True)
+        
+        # Renderizado visual correcto del reporte ejecutivo
+        components.html(reporte_html, height=1500, scrolling=True)
+        
+        st.info("💡 Para guardar este reporte como PDF, presione el botón de 'Compartir' de su navegador y seleccione 'Imprimir' o 'Guardar como PDF'.")
         st.divider()
         boton_exportar_sheets(productos, config)
-    with tab6: vista_historial(config)
+
 
 if __name__ == "__main__":
     main()
