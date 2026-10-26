@@ -828,7 +828,17 @@ def main():
         st.info("💡 Para guardar este reporte como PDF, presione el botón de 'Compartir' de su navegador y seleccione 'Imprimir' o 'Guardar como PDF'.")
         st.divider()
         boton_exportar_sheets(productos, config)
-
+        
+        st.markdown("---")
+        if st.button("📥 Generar y Descargar PDF", type="primary"):
+            pdf_bytes = generar_pdf_desde_html(reporte_html)
+            if pdf_bytes:
+                st.download_button(
+                    label="📄 Descargar Reporte en PDF",
+                    data=pdf_bytes,
+                    file_name=f"Reporte_{config.get('factura','SN')}.pdf",
+                    mime="application/pdf"
+                )
 
 if __name__ == "__main__":
     main()
