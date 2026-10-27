@@ -9,15 +9,16 @@ import re
 
 def fix_private_key(key):
     try:
-        key = key.strip()
-        if "\\n" in key:
-            key = key.replace("\\n", "\n")
-        if "-----BEGIN PRIVATE KEY-----" in key:
-            clean_body = key.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "")
-        else:
-            clean_body = key
-        clean_body = re.sub(r"\s+", "", clean_body)
-        fixed_key = f"-----BEGIN PRIVATE KEY-----\n{clean_body}\n-----END PRIVATE KEY-----"
+        import re
+        # Extraer SOLO los caracteres válidos de Base64 y el signo '=' 
+        # Esto borra cabeceras, saltos de línea, espacios y cualquier carácter invisible.
+        clean = re.sub(r"[^a-zA-Z0-9+/=]", "", key)
+        
+        # Formatear en líneas de 64 caracteres (Requisito estricto de Google)
+        lines = [clean[i:i+64] for i in range(0, len(clean), 64)]
+        
+        # Reconstruir la llave perfecta
+        fixed_key = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lines) + "\n-----END PRIVATE KEY-----\n"
         return fixed_key
     except Exception:
         return key
