@@ -740,7 +740,16 @@ def vista_auditoria_aduanera(productos):
         codigo = p.get("partida_arancelaria")
         if not codigo: continue
         info = consultar_partida(codigo); est = estimar_derechos(codigo, float(p["precio_fob"] * Decimal(str(p["cantidad"]))))
-        st.info(f"**{p['nombre']}** — `{codigo}`  \n{info['descripcion']}  \nAd-valorem: **{info['ad_valorem']*100:.0f}%** · Requisitos: {info['requisitos']}  \nArancel estimado: **${est.get('arancel_usd', 0):,.2f}** · IVA: **${est.get('iva_usd', 0):,.2f}**")
+        texto_info = (
+            f"**{p['nombre']}** — `{codigo}`\n\n"
+            f"{info.get('descripcion', 'Sin descripción')}\n\n"
+            f"Ad-valorem: **{info.get('ad_valorem', 0)*100:.0f}%** | "
+            f"Requisitos: {info.get('requisitos', 'N/A')}\n\n"
+            f"Arancel estimado: **${est.get('arancel_usd', 0):,.2f}** | "
+            f"IVA estimado: **${est.get('iva_usd', 0):,.2f}**"
+        )
+        st.info(texto_info)
+
 
 def vista_historial(config):
     st.subheader("📚 Historial persistente de importaciones")
