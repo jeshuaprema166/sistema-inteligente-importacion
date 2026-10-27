@@ -10,14 +10,27 @@ import re
 def fix_private_key(key):
     try:
         import re
-        # Extraer SOLO los caracteres válidos de Base64 y el signo '=' 
-        # Esto borra cabeceras, saltos de línea, espacios y cualquier carácter invisible.
-        clean = re.sub(r"[^a-zA-Z0-9+/=]", "", key)
+        # 1. Quitar las cabeceras si se colaron
+        key = key.replace("-----BEGIN PRIVATE KEY-----", "")
+        key = key.replace("-----END PRIVATE KEY-----", "")
+        key = key.replace("BEGIN PRIVATE KEY", "")
+        key = key.replace("END PRIVATE KEY", "")
         
-        # Formatear en líneas de 64 caracteres (Requisito estricto de Google)
-        lines = [clean[i:i+64] for i in range(0, len(clean), 64)]
+        # 2. Quitar comillas si se colaron
+        key = key.replace('"', '').replace("'", "").replace('\\n', '')
         
-        # Reconstruir la llave perfecta
+        # 3. Dejar SOLO letras, números, + y /
+        key = re.sub(r'[^a-zA-Z0-9+/]', '', key)
+        
+        # 4. Calcular y agregar el padding correcto al final (múltiplo de 4)
+        padding = len(key) % 4
+        if padding != 0:
+            key += '=' * (4 - padding)
+            
+        # 5. Formatear en líneas de 64 caracteres
+        lines = [key[i:i+64] for i in range(0, len(key), 64)]
+        
+        # 6. Armar la llave final perfecta
         fixed_key = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lines) + "\n-----END PRIVATE KEY-----\n"
         return fixed_key
     except Exception:
