@@ -5,6 +5,22 @@ import os, json, re, unicodedata
 from datetime import datetime, date
 import pandas as pd
 import streamlit as st
+import re
+
+def fix_private_key(key):
+    try:
+        key = key.strip()
+        if "\\n" in key:
+            key = key.replace("\\n", "\n")
+        if "-----BEGIN PRIVATE KEY-----" in key:
+            clean_body = key.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "")
+        else:
+            clean_body = key
+        clean_body = re.sub(r"\s+", "", clean_body)
+        fixed_key = f"-----BEGIN PRIVATE KEY-----\n{clean_body}\n-----END PRIVATE KEY-----"
+        return fixed_key
+    except Exception:
+        return key
 
 try:
     import gspread
@@ -61,6 +77,8 @@ def conectar():
         return None
     try:
         creds_dict = dict(st.secrets["gcp_service_account"])
+        if "private_key" in creds_dict:
+            creds_dict["private_key"] = fix_private_key(creds_dict["private_key"])
     except Exception:
         return None
     sheet_id = st.secrets.get("GOOGLE_SHEET_ID", None)
