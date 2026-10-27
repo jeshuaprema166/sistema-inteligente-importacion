@@ -803,7 +803,8 @@ def main():
             val = st.number_input(f"{nombre} ({criterio})", min_value=0.0, value=0.0, step=10.0, key=f"g_{nombre}")
             gastos_ingresados[nombre] = Decimal(str(val))
             
-    if not st.button("🚀 Calcular análisis completo", type="primary"): return
+    if not st.button("🚀 Calcular análisis completo", type="primary") and "productos_actuales" not in st.session_state:
+        return
     
     try:
         productos = construir_productos_desde_df(df, mapeo)
@@ -811,11 +812,21 @@ def main():
     except Exception as e: st.error(f"Error en cálculo: {e}"); return
     
     st.success(f"✅ Análisis completado para **{len(productos)}** productos.")
+    
+    # Guardamos los resultados en la memoria temporal para que no se borren al tocar botones
+    st.session_state["productos_actuales"] = productos
+    st.session_state["config_actual"] = config
+    st.session_state["gastos_contenedor"] = gastos_contenedor
+    
     if SHEETS_DB_OK:
         if st.button("💾 Guardar esta importación en el historial", type="secondary"):
-            ok, msg = sheets_db.guardar_importacion(productos, config, usuario=config.get("propietario") or "admin")
+            # Recuperamos los datos de la memoria
+            prods_guardar = st.session_state.get("productos_actuales", productos)
+            conf_guardar = st.session_state.get("config_actual", config)
+            
+            ok, msg = sheets_db.guardar_importacion(prods_guardar, conf_guardar, usuario=conf_guardar.get("propietario") or "admin")
             (st.success if ok else st.warning)(msg)
-            sheets_db.guardar_alertas(generar_alertas_reposicion(productos, config))
+            sheets_db.guardar_alertas(generar_alertas_reposicion(prods_guardar, conf_guardar))
             
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["📊 Análisis de costos", "🚦 Reposición", "📅 Flujo de caja", "🏷️ Auditoría aduanera", "📄 Reporte completo", "📚 Historial"])
     with tab1: vista_analisis_costos(productos, config)
