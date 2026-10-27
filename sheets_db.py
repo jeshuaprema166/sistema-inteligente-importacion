@@ -9,30 +9,18 @@ import re
 
 def fix_private_key(key):
     try:
-        import re
-        # 1. Quitar las cabeceras si se colaron
-        key = key.replace("-----BEGIN PRIVATE KEY-----", "")
-        key = key.replace("-----END PRIVATE KEY-----", "")
-        key = key.replace("BEGIN PRIVATE KEY", "")
-        key = key.replace("END PRIVATE KEY", "")
-        
-        # 2. Quitar comillas si se colaron
-        key = key.replace('"', '').replace("'", "").replace('\\n', '')
-        
-        # 3. Dejar SOLO letras, números, + y /
-        key = re.sub(r'[^a-zA-Z0-9+/]', '', key)
-        
-        # 4. Calcular y agregar el padding correcto al final (múltiplo de 4)
-        padding = len(key) % 4
-        if padding != 0:
-            key += '=' * (4 - padding)
-            
-        # 5. Formatear en líneas de 64 caracteres
-        lines = [key[i:i+64] for i in range(0, len(key), 64)]
-        
-        # 6. Armar la llave final perfecta
-        fixed_key = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lines) + "\n-----END PRIVATE KEY-----\n"
-        return fixed_key
+        # 1. Convertir los '\n' de texto en saltos de línea reales
+        key = key.replace('\\n', '\n')
+        # 2. Limpiar comillas si se colaron
+        key = key.replace('"', '').replace("'", "")
+        # 3. Si por alguna razón está todo en una sola línea, formatearlo
+        if "-----BEGIN PRIVATE KEY-----" in key and len(key.split("\n")) <= 2:
+            import re
+            base = key.replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "")
+            base = "".join(base.split())
+            lines = [base[i:i+64] for i in range(0, len(base), 64)]
+            key = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lines) + "\n-----END PRIVATE KEY-----"
+        return key.strip()
     except Exception:
         return key
 
