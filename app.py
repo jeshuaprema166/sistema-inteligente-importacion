@@ -740,10 +740,11 @@ def vista_auditoria_aduanera(productos):
         codigo = p.get("partida_arancelaria")
         if not codigo: continue
         info = consultar_partida(codigo); est = estimar_derechos(codigo, float(p["precio_fob"] * Decimal(str(p["cantidad"]))))
+        ad_valorem = float(info.get('ad_valorem', 0) or 0) * 100
         texto_info = (
             f"**{p['nombre']}** — `{codigo}`\n\n"
             f"{info.get('descripcion', 'Sin descripción')}\n\n"
-            f"Ad-valorem: **{info.get('ad_valorem', 0)*100:.0f}%** | "
+            f"Ad-valorem: **{ad_valorem:.0f}%** | "
             f"Requisitos: {info.get('requisitos', 'N/A')}\n\n"
             f"Arancel estimado: **${est.get('arancel_usd', 0):,.2f}** | "
             f"IVA estimado: **${est.get('iva_usd', 0):,.2f}**"
