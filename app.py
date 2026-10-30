@@ -165,7 +165,7 @@ def verificar_acceso():
             st.image(nombre, use_container_width=True); break
             
     st.markdown("<h1 style='text-align:center;'>Bienvenidos 🛳️</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align:center;'>¿Sabe cuánto le cuesta realmente traer los productos desde el exterior hasta su depósito?</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center;'>¿Sabe cuánto le cuesta realmente traer los productos desde el exterior hasta su depósito?<br>Este Sistema Inteligente le revela:</h3>", unsafe_allow_html=True)
     st.markdown("""
     - **La verdad** sobre sus costos de importación, márgenes y precios óptimos.
     - **Identificar** los márgenes reales de ganancia antes de nacionalizar.
