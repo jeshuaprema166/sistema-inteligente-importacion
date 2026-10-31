@@ -235,3 +235,82 @@ def verificar_acceso():
         else: st.error("❌ Contraseña incorrecta.")
     return False
     
+def prorratear_gasto(monto, productos, campo_base):
+    total_centavos = int(monto.quantize(CENTAVO, rounding=ROUND_HALF_UP) * 100)
+    bases = [producto[campo_base] for producto in productos]
+    suma_bases = sum(bases, CERO)
+    if suma_bases <= CERO: raise ValueError(f"No hay base para repartir por {campo_base}.")
+    partes_exactas = [Decimal(total_centavos) * base / suma_bases for base in bases]
+    partes_en_centavos = [int(parte) for parte in partes_exactas]
+    centavos_sobrantes = total_centavos - sum(partes_en_centavos)
+    orden_por_resto = sorted(range(len(productos)), key=lambda i: partes_exactas[i] - Decimal(partes_en_centavos[i]), reverse=True)
+    for indice in orden_por_resto[:centavos_sobrantes]: partes_en_centavos[indice] += 1
+    return [Decimal(parte) / 100 for parte in partes_en_centavos]
+
+def evaluar_semaforo(stock_actual, ventas_semanales, dias_entrega, fecha_proximo_pedido=None):
+    stock_actual = float(stock_actual) if stock_actual is not None else 0.0
+    ventas_semanales = float(ventas_semanales) if ventas_semanales is not None else 0.0
+    dias_entrega = float(dias_entrega) if dias_entrega is not None else 0.0
+
+    if ventas_semanales <= 0:
+        return "⚪", "Sin ventas registradas", 0, 0, False
+
+    semanas_stock   = stock_actual / ventas_semanales
+    semanas_entrega = dias_entrega / 7.0
+    margen = semanas_stock - semanas_entrega
+    sugerido_ahora = int((semanas_entrega * ventas_semanales) + (4 * ventas_semanales) - stock_actual)
+    if sugerido_ahora < 0:
+        sugerido_ahora = 0
+    sugerido_futuro, riesgo_quiebre = 0, False
+    if fecha_proximo_pedido and isinstance(fecha_proximo_pedido, date) and fecha_proximo_pedido > date.today():
+        dias_hasta = (fecha_proximo_pedido - date.today()).days
+        semanas_hasta = dias_hasta / 7.0
+        demanda_futura = (semanas_hasta * ventas_semanales) + (semanas_entrega * ventas_semanales) + (4 * ventas_semanales)
+        sugerido_futuro = int(demanda_futura - stock_actual)
+        if sugerido_futuro < 0:
+            sugerido_futuro = 0
+        if semanas_stock < semanas_hasta:
+            riesgo_quiebre = True
+    if margen <= 0:
+        color, mensaje = "🔴", "¡ALERTA ROJA! Pedir YA"
+    elif margen <= 2:
+        color, mensaje = "🟡", "Precaución: Pedir pronto"
+    else:
+        color, mensaje = "🟢", "Todo bien: Stock suficiente"
+    return color, mensaje, sugerido_ahora, sugerido_futuro, riesgo_quiebre
+
+def evaluar_carga_pesada(p):
+    precio_fob = float(p.get("precio_fob", 0))
+    cantidad = float(p.get("cantidad", 1) or 1)
+    gastos_totales = float(sum(p.get("gastos", {}).values()))
+    gasto_arribo_unitario = gastos_totales / cantidad if cantidad > 0 else 0
+    if precio_fob <= 0: return "⚪", "Sin datos", 0
+    porcentaje = (gasto_arribo_unitario / precio_fob) * 100
+    if porcentaje > 60: return "🔴", f"PELIGRO: Flete = {porcentaje:.1f}% del costo.", 0
+    elif porcentaje >= 30: return "🟡", f"CUIDADO: Flete = {porcentaje:.1f}% del costo.", 0
+    else: return "🟢", f"RENTABLE: Flete = {porcentaje:.1f}% del costo.", 0
+
+def calcular_pvp_sugerido(precio_fob_usd, costo_nacionalizado_usd, factor_markup_fob=2.6, margen_minimo=0.55, precio_benchmark_local=None):
+    fob, costo = Decimal(str(precio_fob_usd)), Decimal(str(costo_nacionalizado_usd))
+    pvp_markup = fob * Decimal(str(factor_markup_fob))
+    pvp_margen = costo * (Decimal("1") + Decimal(str(margen_minimo)))
+    pvp_benchmark = Decimal(str(precio_benchmark_local)) if precio_benchmark_local else None
+    pvp_sugerido = max(pvp_markup, pvp_margen)
+    if pvp_benchmark: pvp_sugerido = min(pvp_sugerido, pvp_benchmark * Decimal("1.15"))
+    pvp_sugerido = pvp_sugerido.quantize(CENTAVO, ROUND_HALF_UP)
+    utilidad = (pvp_sugerido - costo).quantize(CENTAVO)
+    rentabilidad = (utilidad / costo) if costo > 0 else Decimal("0")
+    alerta = ("🔴 Rentabilidad < 30%" if rentabilidad < Decimal("0.30") else "🟡 Rentabilidad ajustada" if rentabilidad < Decimal("0.50") else "🟢 Rentabilidad saludable")
+    return {"fob_usd": fob, "costo_nacionalizado_usd": costo, "pvp_sugerido": pvp_sugerido, "utilidad_unitaria": utilidad, "rentabilidad_pct": (rentabilidad * 100).quantize(CENTAVO), "alerta": alerta}
+
+def calcular_costos(productos, gastos_ingresados, config):
+    margen = Decimal(str(config["margen"])) / Decimal("100")
+    desc_mayorista = Decimal(str(config["desc_mayorista"])) / Decimal("100")
+    desc_especial = Decimal(str(config["desc_especial"])) / Decimal("100")
+    
+    gastos = []
+    for nombre_gasto, criterio in GASTOS_CONTENEDOR:
+        monto = gastos_ingresados[nombre_gasto]
+        gastos.append((nombre_gasto, criterio, monto))
+        campo_base = "peso_total" if criterio == "peso" else "volumen_total"
+        re
