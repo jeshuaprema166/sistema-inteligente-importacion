@@ -1,7 +1,8 @@
 # ═══════════════════════════════════════════════════════════════════════
 #  SISTEMA DE ANÁLISIS DE IMPORTACIÓN INTELIGENTE 🐉✨ (BLOQUE 1 / 3)
 #. Importaciones, Constantes, Utilidades y Lógica de Datos y Semáforo
-#  Motor original y metodología: Prof. Jesús Pulido V.
+#  Motor original y metodología: Prof. Jesús Pulido V. 
+#  ÚLTIMA ACTUALIZACIÓN 30/10/2026
 # ═══════════════════════════════════════════════════════════════════════
 
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
