@@ -579,3 +579,226 @@ def generar_pdf_desde_html(html_content):
     except Exception as e:
         st.error(f"Error generando PDF: {e}")
         return None
+
+def leer_excel(archivo):
+    if archivo.name.lower().endswith(".csv"): return pd.read_csv(archivo)
+    return pd.read_excel(archivo)
+
+def sugerir_columna(columnas, posibles):
+    columnas_lower = {i: str(c).lower() for i, c in enumerate(columnas)}
+    for palabra in posibles:
+        for idx, col_lower in columnas_lower.items():
+            if palabra in col_lower: 
+                return columnas[idx]
+    return None
+
+def mapear_columnas(df):
+    columnas_opciones = ["(ninguna)"] + list(df.columns)
+    st.markdown("**Mapeo de columnas del Excel**")
+    c1, c2, c3 = st.columns(3); c4, c5, c6 = st.columns(3); c7, c8, c9 = st.columns(3)
+    
+    sugerencias = {
+        "producto": ["producto", "descripcion", "descripción", "nombre", "articulo"],
+        "cantidad": ["cantidad", "cant", "unidades", "qty"],
+        "precio": ["fob", "precio", "origen", "china", "unitario", "costo"],
+        "peso": ["peso", "kg", "weight"],
+        "volumen": ["volumen", "m3", "cbm", "volume"],
+        "stock": ["stock", "inventario", "existencia"],
+        "ventas": ["venta", "ventas", "semanal", "salida"],
+        "dias": ["dias", "días", "entrega", "llegada", "transito"],
+        "partida": ["partida", "hs", "arancel", "codigo"]
+    }
+    
+    def selector(col_st, etiqueta, keys, key_sel):
+        sug = sugerir_columna(list(df.columns), keys)
+        idx = columnas_opciones.index(sug) if sug in columnas_opciones else 0
+        return col_st.selectbox(etiqueta, columnas_opciones, index=idx, key=key_sel)
+
+    return {
+        "producto": selector(c1, "Producto / Descripción", sugerencias["producto"], "sel_prod"),
+        "cantidad": selector(c2, "Cantidad", sugerencias["cantidad"], "sel_cant"),
+        "precio": selector(c3, "Precio FOB Origen $/u", sugerencias["precio"], "sel_prec"),
+        "peso": selector(c4, "Peso unitario (kg)", sugerencias["peso"], "sel_peso"),
+        "volumen": selector(c5, "Volumen unitario (m³)", sugerencias["volumen"], "sel_vol"),
+        "stock": selector(c6, "Stock Actual", sugerencias["stock"], "sel_stock"),
+        "ventas": selector(c7, "Ventas Semanales", sugerencias["ventas"], "sel_vent"),
+        "dias": selector(c8, "Días de Entrega", sugerencias["dias"], "sel_dias"),
+        "partida": selector(c9, "Partida Arancelaria", sugerencias["partida"], "sel_part"),
+    }
+
+def construir_productos_desde_df(df, mapeo):
+    faltantes = [k for k in ["producto","cantidad","precio","peso","volumen"] if mapeo.get(k) in (None, "(ninguna)")]
+    if faltantes: raise ValueError(f"Falta mapear campos obligatorios: {', '.join(faltantes)}")
+    
+    productos = []
+    for i, fila in df.iterrows():
+        try:
+            nombre = str(fila[mapeo["producto"]]).strip() if pd.notna(fila[mapeo["producto"]]) else f"Producto {i+1}"
+            cant_val = a_decimal(fila[mapeo["cantidad"]], "1")
+            cantidad = int(cant_val) if cant_val > CERO else 1
+            
+            precio = a_decimal(fila[mapeo["precio"]], "0.0")
+            peso_u = a_decimal(fila[mapeo["peso"]], "0.0")
+            vol_u  = a_decimal(fila[mapeo["volumen"]], "0.0")
+            
+            stock  = int(a_decimal(fila[mapeo["stock"]], "0")) if mapeo.get("stock") and mapeo["stock"] != "(ninguna)" else 0
+            ventas = a_decimal(fila[mapeo["ventas"]], "0.0") if mapeo.get("ventas") and mapeo["ventas"] != "(ninguna)" else CERO
+            dias   = int(a_decimal(fila[mapeo["dias"]], "60")) if mapeo.get("dias") and mapeo["dias"] != "(ninguna)" else 60
+            
+            partida = str(fila[mapeo["partida"]]).strip() if mapeo.get("partida") and mapeo["partida"] != "(ninguna)" and pd.notna(fila[mapeo["partida"]]) else ""
+
+            cant_dec = Decimal(str(cantidad))
+            productos.append({
+                "nombre": nombre, "cantidad": cantidad, "precio_fob": precio,
+                "peso_total": peso_u * cant_dec, "volumen_total": vol_u * cant_dec,
+                "stock_actual": stock, "ventas_semanales": ventas, "dias_entrega": dias,
+                "partida_arancelaria": partida, "gastos": {}
+            })
+        except Exception as e:
+            st.warning(f"Fila {i + 2} omitida por inconveniente en datos: {e}")
+            
+    if not productos: raise ValueError("No se pudo cargar ningún producto válido desde el archivo.")
+    return productos
+
+def inicializar_estado():
+    if "config_empresa" not in st.session_state: st.session_state.config_empresa = dict(DEFAULTS)
+
+def listar_perfiles():
+    if SHEETS_DB_OK:
+        try: return sheets_db.listar_perfiles()
+        except Exception: pass
+    return st.session_state.get("perfiles_locales", [])
+
+def guardar_perfil_local(perfil):
+    perfiles = st.session_state.get("perfiles_locales", [])
+    existentes = {p["id_perfil"]: i for i, p in enumerate(perfiles)}
+    if perfil["id_perfil"] in existentes: perfiles[existentes[perfil["id_perfil"]]] = perfil
+    else: perfiles.append(perfil)
+    st.session_state["perfiles_locales"] = perfiles
+
+def cargar_perfil(perfil):
+    for k, v in perfil.items():
+        if k in st.session_state.config_empresa: st.session_state.config_empresa[k] = v
+
+def panel_perfil_sidebar():
+    st.sidebar.header("🏢 Perfil de Empresa")
+    perfiles = listar_perfiles()
+    opciones = ["➕ Crear nueva empresa"] + [f"{p['empresa']} ({p['id_perfil']})" for p in perfiles]
+    actual_id = st.session_state.config_empresa.get("id_perfil", "")
+    idx_actual = 0
+    for i, p in enumerate(perfiles):
+        if p["id_perfil"] == actual_id: idx_actual = i + 1; break
+    sel = st.sidebar.selectbox("Seleccionar empresa", opciones, index=idx_actual)
+    if sel == "➕ Crear nueva empresa":
+        st.sidebar.markdown("### 🆕 Nueva empresa")
+        empresa = st.sidebar.text_input("Razón Social *", key="new_empresa")
+        rif = st.sidebar.text_input("RIF", key="new_rif")
+        prop = st.sidebar.text_input("Propietario / Responsable", key="new_prop")
+        email = st.sidebar.text_input("Email de contacto", key="new_email")
+        sector = st.sidebar.selectbox("Sector / Rubro", SECTORES, key="new_sector")
+        sector_otro = st.sidebar.text_input("Especifique el sector", key="new_sector_otro") if sector.startswith("Otro") else ""
+        origen = st.sidebar.selectbox("Origen principal", ORIGENES, key="new_origen")
+        origen_otro = st.sidebar.text_input("Especifique el origen", key="new_origen_otro") if origen.startswith("Otro") else ""
+        moneda = st.sidebar.selectbox("Moneda base", ["USD", "EUR", "VES"], key="new_moneda")
+        if st.sidebar.button("💾 Crear perfil", type="primary", key="btn_crear_perfil"):
+            if not empresa.strip(): st.sidebar.error("La Razón Social es obligatoria.")
+            else:
+                perfil = {"id_perfil": slugify(empresa), "empresa": empresa.strip(), "rif": rif.strip(), "propietario": prop.strip(), "email": email.strip(), "sector": sector, "sector_otro": sector_otro.strip(), "origen": origen, "origen_otro": origen_otro.strip(), "moneda_default": moneda, "margen": DEFAULTS["margen"], "desc_mayorista": DEFAULTS["desc_mayorista"], "desc_especial": DEFAULTS["desc_especial"], "proveedor": ""}
+                if SHEETS_DB_OK:
+                    ok, msg = sheets_db.crear_actualizar_perfil(perfil)
+                    (st.sidebar.success if ok else st.sidebar.warning)(msg)
+                else: guardar_perfil_local(perfil); st.sidebar.success(f"✅ Perfil '{empresa}' creado localmente.")
+                cargar_perfil(perfil); st.rerun()
+    else:
+        idx = opciones.index(sel) - 1
+        perfil = perfiles[idx]
+        cargar_perfil(perfil)
+        st.sidebar.success(f"✅ Perfil activo: **{perfil['empresa']}**")
+        st.sidebar.caption(f"ID: `{perfil['id_perfil']}`")
+    st.sidebar.divider()
+
+def panel_configuracion_avanzada(config):
+    with st.sidebar.expander("⚙️ Ajustes avanzados", expanded=False):
+        config["margen"] = st.number_input("Margen normal (%)", 0.0, 99.0, float(config["margen"]), 0.5, key="adv_margen")
+        config["desc_mayorista"] = st.number_input("Descuento mayorista (%)", 0.0, 99.0, float(config["desc_mayorista"]), 0.5, key="adv_desc_may")
+        config["desc_especial"] = st.number_input("Descuento especial (%)", 0.0, 99.0, float(config["desc_especial"]), 0.5, key="adv_desc_esp")
+        config["capital_inicial"] = st.number_input("Capital inicial ($)", 0.0, value=float(config["capital_inicial"]), step=100.0, key="adv_cap")
+        config["costo_fijo_semanal"] = st.number_input("Costo fijo semanal ($)", 0.0, value=float(config["costo_fijo_semanal"]), step=10.0, key="adv_cf")
+        config["monto_proximo_pedido"] = st.number_input("Monto próximo pedido ($)", 0.0, value=float(config["monto_proximo_pedido"]), step=100.0, key="adv_mpp")
+        config["fecha_proximo_pedido"] = st.date_input("Fecha próximo pedido", value=config.get("fecha_proximo_pedido"), key="adv_fpp")
+    st.sidebar.divider()
+    st.sidebar.subheader("🌍 Origen del embarque")
+    config["origen"] = st.sidebar.selectbox("País de origen", ORIGENES, index=ORIGENES.index(config.get("origen", "China")) if config.get("origen") in ORIGENES else 0, key="origen_sel")
+    if config["origen"].startswith("Otro"): config["origen_otro"] = st.sidebar.text_input("Especifique el país", value=config.get("origen_otro",""), key="origen_otro_txt")
+    config["proveedor"] = st.sidebar.text_input("Proveedor", value=config.get("proveedor",""), key="prov_txt")
+    config["factura"]   = st.sidebar.text_input("Nro. de Factura", value=config.get("factura",""), key="fact_txt")
+    st.session_state.config_empresa = config
+    return config
+
+def vista_analisis_costos(productos, config):
+    st.subheader("📊 Análisis de costos por producto")
+    filas = [{"Producto": p["nombre"], "Cantidad": p["cantidad"], "FOB $/u": float(p["precio_fob"]), "Gasto arribo $/u": float(p["gasto_unitario"]), "Costo real $/u": float(p["costo_unitario"]), "PVP Normal": float(p["pvp_normal"]), "PVP Sugerido": float(p["pvp_sugerido"]), "Rentab. %": float(p["rentabilidad_pct"]), "Partida": p.get("partida_arancelaria", ""), "Alerta PVP": p.get("alerta_pvp", ""), "Semáforo": p.get("semaforo", "")} for p in productos]
+    st.dataframe(pd.DataFrame(filas), use_container_width=True)
+    c1, c2, c3, c4 = st.columns(4)
+    inv_total = sum((p["costo_unitario"] * Decimal(str(p["cantidad"])) for p in productos), CERO)
+    arr_total = sum((p["gastos_totales"] for p in productos), CERO)
+    mer_total = sum((p["precio_fob"] * Decimal(str(p["cantidad"])) for p in productos), CERO)
+    en_rojo = sum(1 for p in productos if "🔴" in p.get("semaforo_color", ""))
+    
+    c1.metric("Inversión total", formato_dinero(inv_total))
+    c2.metric("Gasto arribo / mercancía", f"{(arr_total / mer_total * 100) if mer_total > CERO else 0:.1f}%")
+    c3.metric("Productos en rojo", f"{en_rojo} / {len(productos)}")
+    c4.metric("Margen promedio", f"{sum(float(p['rentabilidad_pct']) for p in productos)/len(productos):.1f}%")
+    
+    fig, ax = plt.subplots(figsize=(10, 4))
+    nombres = [p["nombre"][:20] for p in productos]; costos = [float(p["costo_unitario"]) for p in productos]; sugeridos = [float(p["pvp_sugerido"]) for p in productos]
+    x = list(range(len(nombres)))
+    ax.bar([i - 0.2 for i in x], costos, width=0.4, label="Costo real", color="#C44E52")
+    ax.bar([i + 0.2 for i in x], sugeridos, width=0.4, label="PVP sugerido", color="#4C72B0")
+    ax.set_xticks(x); ax.set_xticklabels(nombres, rotation=20, ha="right"); ax.set_title("Costo real vs PVP Sugerido"); ax.legend(); ax.grid(alpha=0.3, axis="y")
+    st.pyplot(fig)
+
+def vista_auditoria_aduanera(productos):
+    st.subheader("🏷️ Auditoría de Partidas Arancelarias")
+    auditoria = auditar_partidas(productos)
+    if not auditoria: st.warning("Ningún producto tiene partida arancelaria cargada."); return
+    st.dataframe(pd.DataFrame(auditoria), use_container_width=True)
+    st.markdown("### Detalle por partida")
+    for p in productos:
+        codigo = p.get("partida_arancelaria")
+        if not codigo: continue
+        info = consultar_partida(codigo); est = estimar_derechos(codigo, float(p["precio_fob"] * Decimal(str(p["cantidad"]))))
+        ad_valorem = float(info.get('ad_valorem', 0) or 0) * 100
+        texto_info = (
+            f"**{p['nombre']}** — `{codigo}`\n\n"
+            f"{info.get('descripcion', 'Sin descripción')}\n\n"
+            f"Ad-valorem: **{ad_valorem:.0f}%** | "
+            f"Requisitos: {info.get('requisitos', 'N/A')}\n\n"
+            f"Arancel estimado: **${est.get('arancel_usd', 0):,.2f}** | "
+            f"IVA estimado: **${est.get('iva_usd', 0):,.2f}**"
+        )
+        st.info(texto_info)
+
+def vista_historial(config):
+    st.subheader("📚 Historial persistente de importaciones")
+    id_perfil = config.get("id_perfil", "")
+    if SHEETS_DB_OK:
+        est = sheets_db.estado_conexion(); st.caption(f"Modo: **{est['modo'].upper()}** · {est['mensaje']}")
+        df_hist = sheets_db.leer_historial(id_perfil=id_perfil)
+    else: st.caption("Modo: **LOCAL** (sin `sheets_db.py`)"); df_hist = pd.DataFrame()
+    if df_hist.empty: st.info(f"Aún no hay importaciones guardadas para **{config.get('empresa','esta empresa')}**."); return
+    c1, c2, c3 = st.columns(3)
+    with c1: f_sel = st.selectbox("Filtrar por factura", ["(Todas)"] + sorted(df_hist["factura"].astype(str).unique().tolist()))
+    with c2: p_sel = st.selectbox("Filtrar por producto", ["(Todos)"] + sorted(df_hist["producto"].astype(str).unique().tolist()))
+    with c3: sem_filtro = st.selectbox("Filtrar por semáforo", ["(Todos)", "🔴", "🟡", "🟢", "⚪"])
+    df_f = df_hist.copy()
+    if f_sel != "(Todas)": df_f = df_f[df_f["factura"] == f_sel]
+    if p_sel != "(Todos)": df_f = df_f[df_f["producto"] == p_sel]
+    if sem_filtro != "(Todos)": df_f = df_f[df_f["semaforo"] == sem_filtro]
+    st.dataframe(df_f, use_container_width=True, height=400)
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Importaciones", df_f["id_importacion"].nunique()); m2.metric("Productos", len(df_f))
+    m3.metric("Gasto arribo USD", f"$ {pd.to_numeric(df_f['gasto_arribo_total_usd'], errors='coerce').sum():,.0f}")
+    m4.metric("Productos en rojo", (df_f["semaforo"] == "🔴").sum())
+    st.download_button("📥 Descargar historial filtrado (CSV)", data=df_f.to_csv(index=False).encode("utf-8-sig"), file_name=f"historial_{id_perfil}_{datetime.now().strftime('%Y%m%d')}.csv", mime="text/csv")
+
