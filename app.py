@@ -48,6 +48,35 @@ ORIGENES = [
     "Otro (especificar)",
 ]
 
+# Actualización de Orígenes y Tiempos de Tránsito Estándar (Días)
+ORIGENES_CON_TRANSITO = {
+    "China": {"dias": 60, "tipo": "maritimo"},
+    "Estados Unidos": {"dias": 22, "tipo": "maritimo/aereo"},
+    "Panamá": {"dias": 15, "tipo": "maritimo/multimodal"},
+    "Brasil": {"dias": 25, "tipo": "terrestre/maritimo"},
+    "Turquía": {"dias": 35, "tipo": "maritimo"},
+    "India": {"dias": 45, "tipo": "maritimo"},
+    "Colombia": {"dias": 8, "tipo": "terrestre"},
+    "México": {"dias": 20, "tipo": "maritimo"},
+    "Vietnam": {"dias": 55, "tipo": "maritimo"},
+    "Tailandia": {"dias": 55, "tipo": "maritimo"},
+    "Corea del Sur": {"dias": 50, "tipo": "maritimo"},
+    "Japón": {"dias": 50, "tipo": "maritimo"},
+    "Alemania": {"dias": 30, "tipo": "maritimo"},
+    "España": {"dias": 25, "tipo": "maritimo"},
+    "Italia": {"dias": 28, "tipo": "maritimo"},
+    "Proveedor Nacional (Local / Emergencia)": {"dias": 4, "tipo": "terrestre_local"},
+    "Otro (especificar)": {"dias": 45, "tipo": "personalizado"}
+}
+
+# Extraemos la lista para los selectbox de la interfaz manteniendo compatibilidad
+ORIGENES = list(ORIGENES_CON_TRANSITO.keys())
+
+def obtener_dias_transito(pais_origen):
+    """Devuelve los días de tránsito estimados según el país seleccionado."""
+    info = ORIGENES_CON_TRANSITO.get(pais_origen, {"dias": 60})
+    return info["dias"]
+
 DEFAULTS = {
     "id_perfil": "", "empresa": "", "rif": "", "propietario": "", "email": "",
     "sector": "Ferretería / Herramientas", "sector_otro": "",
@@ -308,6 +337,9 @@ def calcular_costos(productos, gastos_ingresados, config):
     desc_mayorista = Decimal(str(config["desc_mayorista"])) / Decimal("100")
     desc_especial = Decimal(str(config["desc_especial"])) / Decimal("100")
     
+    # Obtenemos los días de tránsito dinámicos según el país de origen seleccionado
+    dias_transito_dinamicos = obtener_dias_transito(config.get("origen", "China"))
+    
     gastos = []
     for nombre_gasto, criterio in GASTOS_CONTENEDOR:
         monto = gastos_ingresados[nombre_gasto]
@@ -321,7 +353,7 @@ def calcular_costos(productos, gastos_ingresados, config):
         cantidad = producto["cantidad"]
         gastos_totales = sum(producto["gastos"].values(), CERO)
         gasto_unitario = gastos_totales / Decimal(str(cantidad))
-        costo_real = (producto["precio_fob"] + gasto_unitario).quantize(CENTAVO, rounding=ROUND_HALF_UP)
+        costo_real = (producto["precio_fob"] + gasto_unitario).quantize(CENTAVO, ROUND_HALF_UP)
         producto.update({"gastos_totales": gastos_totales, "gasto_unitario": gasto_unitario, "costo_unitario": costo_real})
         
         div = UNO - margen
@@ -334,7 +366,15 @@ def calcular_costos(productos, gastos_ingresados, config):
         producto["rentabilidad_pct"] = Decimal(str(res["rentabilidad_pct"]))
         producto["alerta_pvp"] = res["alerta"]
         
-        color, mensaje, _, _, _ = evaluar_semaforo(producto.get("stock_actual", 0), producto.get("ventas_semanales", 0), producto.get("dias_entrega", 0), config.get("fecha_proximo_pedido"))
+        # Asignamos los días de entrega dinámicos calculados del origen
+        producto["dias_entrega"] = dias_transito_dinamicos
+        
+        color, mensaje, _, _, _ = evaluar_semaforo(
+            producto.get("stock_actual", 0), 
+            producto.get("ventas_semanales", 0), 
+            producto["dias_entrega"], 
+            config.get("fecha_proximo_pedido")
+        )
         producto["semaforo_color"] = color
         producto["semaforo"] = mensaje
     return gastos
