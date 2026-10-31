@@ -313,4 +313,28 @@ def calcular_costos(productos, gastos_ingresados, config):
         monto = gastos_ingresados[nombre_gasto]
         gastos.append((nombre_gasto, criterio, monto))
         campo_base = "peso_total" if criterio == "peso" else "volumen_total"
-        re
+        repartos = prorratear_gasto(monto, productos, campo_base)
+        for producto, monto_asignado in zip(productos, repartos): 
+            producto["gastos"][nombre_gasto] = monto_asignado
+            
+    for producto in productos:
+        cantidad = producto["cantidad"]
+        gastos_totales = sum(producto["gastos"].values(), CERO)
+        gasto_unitario = gastos_totales / Decimal(str(cantidad))
+        costo_real = (producto["precio_fob"] + gasto_unitario).quantize(CENTAVO, rounding=ROUND_HALF_UP)
+        producto.update({"gastos_totales": gastos_totales, "gasto_unitario": gasto_unitario, "costo_unitario": costo_real})
+        
+        div = UNO - margen
+        producto["pvp_normal"] = redondear_entero(costo_real / div) if div > CERO else costo_real
+        producto["pvp_mayorista"] = redondear_entero(producto["pvp_normal"] * (UNO - desc_mayorista))
+        producto["pvp_especial"] = redondear_entero(producto["pvp_normal"] * (UNO - desc_especial))
+        
+        res = calcular_pvp_sugerido(precio_fob_usd=float(producto["precio_fob"]), costo_nacionalizado_usd=float(costo_real))
+        producto["pvp_sugerido"] = Decimal(str(res["pvp_sugerido"]))
+        producto["rentabilidad_pct"] = Decimal(str(res["rentabilidad_pct"]))
+        producto["alerta_pvp"] = res["alerta"]
+        
+        color, mensaje, _, _, _ = evaluar_semaforo(producto.get("stock_actual", 0), producto.get("ventas_semanales", 0), producto.get("dias_entrega", 0), config.get("fecha_proximo_pedido"))
+        producto["semaforo_color"] = color
+        producto["semaforo"] = mensaje
+    return gastos
