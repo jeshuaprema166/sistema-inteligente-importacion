@@ -802,3 +802,190 @@ def vista_historial(config):
     m4.metric("Productos en rojo", (df_f["semaforo"] == "🔴").sum())
     st.download_button("📥 Descargar historial filtrado (CSV)", data=df_f.to_csv(index=False).encode("utf-8-sig"), file_name=f"historial_{id_perfil}_{datetime.now().strftime('%Y%m%d')}.csv", mime="text/csv")
 
+def vista_generador_sintetico():
+    st.subheader("🛠️ Generador Auxiliar de Datos de Prueba para Demostraciones")
+    st.markdown("""
+    Esta herramienta le permite generar archivos de prueba en Excel a la medida de su cliente
+    para realizar **demostraciones en vivo** según el ramo comercial de la empresa.
+    """)
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        cant_articulos = st.number_input("1. ¿Cuántos artículos desea generar?", min_value=1, max_value=50, value=5, step=1, key="gen_cant")
+    with col2:
+        ramo = st.selectbox("2. Seleccione el ramo comercial:", list(BANCO_PRODUCTOS_SINTETICOS.keys()), key="gen_ramo")
+    with col3:
+        tipo_alarma = st.selectbox("3. Condición de Alarmas (Semáforo):", [
+            "🔴 Todos en Alerta Roja (Desabastecimiento crítico / Pedir YA)",
+            "🟢 Todos en Stock Saludable (OK)",
+            "🟡 Todos en Precaución",
+            "🔀 Mixto (Mezcla de Alerta Roja, Precaución y OK)"
+        ], key="gen_alarma")
+        
+    if st.button("🚀 Generar y Descargar Excel de Prueba", type="primary", key="btn_gen_excel"):
+        lista_base = BANCO_PRODUCTOS_SINTETICOS.get(ramo, BANCO_PRODUCTOS_SINTETICOS["Moto Repuestos"])
+        filas = []
+
+        for i in range(cant_articulos):
+            prod_ref = lista_base[i % len(lista_base)]
+            variacion = 1.0 if i < len(lista_base) else round(1.0 + (i * 0.05), 2)
+            
+            nombre = f"{prod_ref['nombre']} (Mod. {i+1})" if i >= len(lista_base) else prod_ref['nombre']
+            cantidad = int(random.choice([100, 150, 200, 250, 400, 500, 600]))
+            fob = round(prod_ref['fob'] * variacion, 2)
+            peso_u = round(prod_ref['peso'], 2)
+            vol_u = round(prod_ref['vol'], 4)
+            partida = prod_ref['partida']
+            
+            ventas_semana = random.randint(10, 40)
+            demanda_60_dias = int(ventas_semana * (60 / 7))
+            
+            if "🔴" in tipo_alarma:
+                stock_actual = int(demanda_60_dias * 0.25)
+            elif "🟢" in tipo_alarma:
+                stock_actual = int(demanda_60_dias * 1.5)
+            elif "🟡" in tipo_alarma:
+                stock_actual = int(demanda_60_dias * 0.9)
+            else:
+                opc = i % 3
+                if opc == 0: stock_actual = int(demanda_60_dias * 0.2)
+                elif opc == 1: stock_actual = int(demanda_60_dias * 0.85)
+                else: stock_actual = int(demanda_60_dias * 1.4)
+                    
+            dias_entrega = 60
+
+            filas.append({
+                "Producto": nombre,
+                "Cantidad": cantidad,
+                "Precio FOB Origen $/u": fob,
+                "Peso unitario (kg)": peso_u,
+                "Volumen unitario (m3)": vol_u,
+                "Stock Actual": stock_actual,
+                "Ventas Semanales": ventas_semana,
+                "Días de Entrega": dias_entrega,
+                "Partida Arancelaria": partida
+            })
+
+        df_gen = pd.DataFrame(filas)
+        buffer = io.BytesIO()
+        with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+            df_gen.to_excel(writer, index=False, sheet_name='Sheet1')
+        buffer.seek(0)
+
+        st.success(f"✅ Archivo de prueba listo para **{ramo}** con **{cant_articulos} artículos**.")
+        st.dataframe(df_gen, use_container_width=True)
+
+        nombre_archivo = f"Prueba_{ramo.replace(' ', '_')}_{cant_articulos}items.xlsx"
+        st.download_button(
+            label="📥 Descargar Archivo Excel Creado",
+            data=buffer,
+            file_name=nombre_archivo,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            type="primary"
+        )
+
+def main():
+    st.set_page_config(page_title="Sistema de Importación Inteligente Premium", page_icon="🛳️", layout="wide")
+    if not verificar_acceso(): return
+    inicializar_estado(); inicializar_monedas()
+    panel_perfil_sidebar()
+    config = st.session_state.config_empresa.copy()
+    if not config.get("empresa"): st.warning("👈 Crea o selecciona un **perfil de empresa** en la barra lateral para comenzar."); return
+    panel_configuracion_avanzada(config); panel_monedas_sidebar(config)
+    st.title("🛳️ Sistema de Análisis de Importación Inteligente Premium 🐉")
+    st.caption(f"Empresa activa: **{config['empresa']}** · Sector: {texto_efectivo(config.get('sector'), config.get('sector_otro'))} · Origen: {texto_efectivo(config.get('origen'), config.get('origen_otro'))}")
+    st.caption("Metodología: **Prof. Jesús Pulido V.** · Asesor de Importación Inteligente")
+    with st.sidebar:
+        st.markdown("---")
+        if SHEETS_DB_OK:
+            est = sheets_db.estado_conexion()
+            if est["modo"] == "nube": st.success(f"☁️ {est['mensaje']}")
+            else: st.info(f"💾 {est['mensaje']}")
+        else: st.info("💾 Modo local (sin sheets_db.py)")
+        st.markdown("---"); st.caption("📞 0424-728.3199 / 0416-291.6426"); st.caption("✉️ jeshua166@gmail.com")
+        
+    archivo = st.file_uploader("📤 Sube tu Excel o CSV con los productos", type=["xlsx", "xls", "csv"])
+    if archivo is None:
+        st.info("Sube un archivo Excel o CSV para comenzar el análisis.")
+        with st.expander("❓ Columnas esperadas"): st.markdown("- Producto / Descripción\n- Cantidad\n- Precio FOB Origen (unitario)\n- Peso unitario (kg)\n- Volumen unitario (m³)\n- Stock Actual\n- Ventas Semanales\n- Días de Entrega\n- Partida Arancelaria (opcional)")
+        
+        st.divider()
+        vista_generador_sintetico()
+        return
+
+    try:
+        df = leer_excel(archivo); st.success(f"✅ Archivo cargado: **{len(df)}** filas")
+        with st.expander("👀 Ver primeras filas"): st.dataframe(df.head(), use_container_width=True)
+    except Exception as e: st.error(f"Error al leer archivo: {e}"); return
+    
+    mapeo = mapear_columnas(df)
+    st.markdown("### 💼 Gastos del contenedor (en USD)")
+    cols = st.columns(3); gastos_ingresados = {}
+    for i, (nombre, criterio) in enumerate(GASTOS_CONTENEDOR):
+        with cols[i % 3]:
+            val = st.number_input(f"{nombre} ({criterio})", min_value=0.0, value=0.0, step=10.0, key=f"g_{nombre}")
+            gastos_ingresados[nombre] = Decimal(str(val))
+            
+    if not st.button("🚀 Calcular análisis completo", type="primary") and "productos_actuales" not in st.session_state:
+        return
+    
+    try:
+        productos = construir_productos_desde_df(df, mapeo)
+        gastos_contenedor = calcular_costos(productos, gastos_ingresados, config)
+    except Exception as e: st.error(f"Error en cálculo: {e}"); return
+    
+    st.success(f"✅ Análisis completado para **{len(productos)}** productos.")
+    
+    st.session_state["productos_actuales"] = productos
+    st.session_state["config_actual"] = config
+    st.session_state["gastos_contenedor"] = gastos_contenedor
+    
+    if SHEETS_DB_OK:
+        if st.button("💾 Guardar esta importación en el historial", type="secondary"):
+            prods_guardar = st.session_state.get("productos_actuales", productos)
+            conf_guardar = st.session_state.get("config_actual", config)
+            
+            ok, msg = sheets_db.guardar_importacion(prods_guardar, conf_guardar, usuario=conf_guardar.get("propietario") or "admin")
+            (st.success if ok else st.warning)(msg)
+            sheets_db.guardar_alertas(generar_alertas_reposicion(prods_guardar, conf_guardar))
+            
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+        "📊 Análisis de costos", 
+        "🚦 Reposición", 
+        "📅 Flujo de caja", 
+        "🏷️ Auditoría aduanera", 
+        "📄 Reporte completo", 
+        "📚 Historial",
+        "🛠️ Generador de Datos"
+    ])
+    
+    with tab1: vista_analisis_costos(productos, config)
+    with tab2: mostrar_alertas_en_panel(generar_alertas_reposicion(productos, config))
+    with tab3: mostrar_flujo_caja(proyectar_flujo_caja(productos, config, semanas=13, crecimiento_semanal=0.02, costo_fijo_semanal=config.get("costo_fijo_semanal", 0), pago_importacion={"fecha": config.get("fecha_proximo_pedido"), "monto_usd": config.get("monto_proximo_pedido", 0)}))
+    with tab4: vista_auditoria_aduanera(productos)
+    with tab5:
+        st.subheader("📄 Reporte Ejecutivo")
+        reporte_html = crear_reporte_html(productos, gastos_contenedor, config)
+        
+        components.html(reporte_html, height=1500, scrolling=True)
+        
+        st.info("💡 Para guardar este reporte como PDF, presione el botón de 'Compartir' de su navegador y seleccione 'Imprimir' o 'Guardar como PDF'.")
+        st.divider()
+        boton_exportar_sheets(productos, config)
+        
+        st.markdown("---")
+        pdf_bytes = generar_pdf_desde_html(reporte_html)
+        if pdf_bytes:
+            st.download_button(
+                label="📄 Descargar Reporte en PDF",
+                data=pdf_bytes,
+                file_name=f"Reporte_{config.get('factura','SN')}.pdf",
+                mime="application/pdf",
+                type="primary"
+            )
+    with tab6: vista_historial(config)
+    with tab7: vista_generador_sintetico()
+
+if __name__ == "__main__":
+    main()
+            
